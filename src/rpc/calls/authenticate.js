@@ -1,5 +1,5 @@
-import { API_AUTHENTICATE, ELECTRUM, ETH, POST } from "../../utils/constants"
-import { getApiData } from "../callCreator"
+import { API_AUTHENTICATE, ELECTRUM, ETH, POST, ERC20 } from "../../utils/constants";
+import { getApiData } from "../callCreator";
 
 /**
  * Authenticates a seed for eth and electrum modes. Returns true on success, throws
@@ -8,15 +8,17 @@ import { getApiData } from "../callCreator"
  */
 export const authenticateSeed = async (seed) => {
   try {
-    const electrumAuthResult = await getApiData(ELECTRUM, API_AUTHENTICATE, {seed}, POST, true)
-    const ethAuthResult = await getApiData(ETH, API_AUTHENTICATE, {seed}, POST, true)
+    const electrumAuthResult = await getApiData(ELECTRUM, API_AUTHENTICATE, { seed }, POST, true);
+    const ethAuthResult = await getApiData(ETH, API_AUTHENTICATE, { seed }, POST, true);
+    const erc20AuthResult = await getApiData(ERC20, API_AUTHENTICATE, { seed }, POST, true);
 
-    if (electrumAuthResult.msg === 'error') throw new Error("Electrum authentication failed.")
-    else if (ethAuthResult.msg === 'error') throw new Error("Eth authentication failed.")
+    if (electrumAuthResult.msg === "error") throw new Error("Electrum authentication failed.");
+    else if (ethAuthResult.msg === "error") throw new Error("ETH authentication failed.");
+    else if (erc20AuthResult.msg === "error") throw new Error("ERC20 authentication failed.");
 
-    return true
+    return true;
   } catch (e) {
-    console.error(e.message)
-    throw e
+    console.error(e.message);
+    throw e;
   }
-}
+};

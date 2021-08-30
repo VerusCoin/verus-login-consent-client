@@ -1,18 +1,32 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
+import {
+  Router,
+  Route,
+  hashHistory
+} from 'react-router';
 import { Provider } from 'react-redux';
 import store from './redux/store';
+
+import App from './App';
+import './index.css';
 import ErrorBoundary from './components/addCoin/error/ErrorBoundary';
 
-ReactDOM.render(
+const router = (
   <ErrorBoundary>
-    <Provider store={store}>
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>
+    <Provider store={ store }>
+      <Router history={ hashHistory }>
+        <Route
+          exact path="/"
+          component={ App } />
+      </Router>
     </Provider>
-  </ErrorBoundary>,
-  document.getElementById('root')
+  </ErrorBoundary>
 );
+
+document.addEventListener('DOMContentLoaded', () => {
+  ReactDOM.render(
+    router,
+    document.getElementById('app'),
+  );
+});

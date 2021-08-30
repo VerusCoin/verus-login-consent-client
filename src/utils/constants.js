@@ -5,6 +5,7 @@ export const VERUS_DESKTOP_AUTHENTICATOR = "VERUS_DESKTOP_AUTHENTICATOR"
 export const NATIVE = 'native'
 export const ELECTRUM = 'electrum'
 export const ETH = 'eth'
+export const ERC20 = 'erc20'
 export const GET = 'get'
 export const POST = 'post'
 export const API_SUCCESS = 'success'
@@ -70,7 +71,7 @@ export const ZCPARAMS_SOCKET = 'zcparams'
 export const ADDCOIN_DELAY = 500
 
 // ipc
-export const IPC_ORIGIN_DEV = "http://127.0.0.1:3000"
+export const IPC_ORIGIN_DEV = "http://127.0.0.1:3001"
 export const IPC_ORIGIN_PRODUCTION = "file://"
 export const IPC_INIT_MESSAGE = 'init'
 export const IPC_PUSH_MESSAGE = 'push'

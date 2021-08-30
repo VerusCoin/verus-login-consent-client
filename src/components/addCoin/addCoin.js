@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { DEVMODE } from '../../env';
 import { setError } from '../../redux/reducers/error/error.actions';
 import { setOriginApp } from '../../redux/reducers/origin/origin.actions';
 import { closePlugin } from '../../rpc/calls/closePlugin';
