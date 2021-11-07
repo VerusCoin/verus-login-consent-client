@@ -1,5 +1,5 @@
 import {
-  IPC_COIN_REQUEST_METHOD,
+  IPC_LOGIN_CONSENT_REQUEST_METHOD,
   IPC_INIT_MESSAGE,
   IPC_ORIGIN_DEV,
   IPC_PUSH_MESSAGE,
@@ -22,7 +22,7 @@ export const SIMULATED_IPC_COIN_REQUEST = {
   origin: IPC_ORIGIN_DEV,
   data: JSON.stringify({
     type: IPC_PUSH_MESSAGE,
-    method: IPC_COIN_REQUEST_METHOD,
+    method: IPC_LOGIN_CONSENT_REQUEST_METHOD,
     data: {
       ticker: "ETH",
       mode: "eth",

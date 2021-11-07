@@ -6,22 +6,18 @@ import { closePlugin } from '../../rpc/calls/closePlugin';
 import { getPlugin } from '../../rpc/calls/getPlugin';
 import { VERUS_DESKTOP_AUTHENTICATOR } from '../../utils/constants';
 import { 
-  AddCoinRender
-} from './addCoin.render';
+  LoginConsentRender
+} from './LoginConsent.render';
 
-class AddCoin extends React.Component {
+class LoginConsent extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      addCoinParams: {
-        chainTicker: null,
-        mode: null,
-        launchConfig: null
-      }
+      loginConsentParams: {}
     }
 
-    this.getAddCoinParams = this.getAddCoinParams.bind(this)
+    this.getLoginConsentParams = this.getLoginConsentParams.bind(this)
     this.completeAuthorization = this.completeAuthorization.bind(this)
   }
 
@@ -45,8 +41,8 @@ class AddCoin extends React.Component {
     }
   }
 
-  getAddCoinParams(addCoinParams, callback) {
-    this.setState({addCoinParams}, () => {if (callback) callback()})
+  getLoginConsentParams(loginConsentParams, callback) {
+    this.setState({loginConsentParams}, () => {if (callback) callback()})
   }
 
   async completeAuthorization(authorized, error) {
@@ -59,7 +55,7 @@ class AddCoin extends React.Component {
   } 
 
   render() {
-    return AddCoinRender.call(this);
+    return LoginConsentRender.call(this);
   }
 }
 
@@ -77,4 +73,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps)(AddCoin);
+export default connect(mapStateToProps)(LoginConsent);

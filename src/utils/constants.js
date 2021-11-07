@@ -75,7 +75,7 @@ export const IPC_ORIGIN_DEV = "http://127.0.0.1:3001"
 export const IPC_ORIGIN_PRODUCTION = "file://"
 export const IPC_INIT_MESSAGE = 'init'
 export const IPC_PUSH_MESSAGE = 'push'
-export const IPC_COIN_REQUEST_METHOD = 'VERUS_DESKTOP_AUTHENTICATOR_COIN_REQUEST'
+export const IPC_LOGIN_CONSENT_REQUEST_METHOD = 'VERUS_LOGIN_CONSENT_REQUEST'
 
 // External Actions Types 
 export const EXTERNAL_LOGIN = 'EXTERNAL_LOGIN'

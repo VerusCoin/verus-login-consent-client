@@ -3,7 +3,7 @@ import { getApiData } from "../callCreator"
 
 /**
  * Checks if a coin is authenticated
- * @param {String} chainTicker Coin to check
+ * @param {String} chain Coin to check
  */
 export const checkAuthentication = async (mode) => {
   try {

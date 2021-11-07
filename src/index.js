@@ -10,7 +10,7 @@ import store from './redux/store';
 
 import App from './App';
 import './index.css';
-import ErrorBoundary from './components/addCoin/error/ErrorBoundary';
+import ErrorBoundary from './components/LoginConsent/Error/ErrorBoundary';
 
 const router = (
   <ErrorBoundary>

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { setNavigationPath } from '../../../redux/reducers/navigation/navigation.actions';
 import { 
   ExternalActionRender
-} from './externalAction.render';
+} from './ExternalAction.render';
 import { CONFIGURE, EXTERNAL_LOGIN, EXTERNAL_ZCASHPARAMS, NATIVE } from '../../../utils/constants'
 import { checkAndUpdateUsers } from '../../../redux/reducers/user/user.actions';
 import { checkZcashParamsFormatted } from '../../../rpc/calls/zcashParams';
@@ -65,7 +65,7 @@ class ExternalAction extends React.Component {
     this.setState({ loading: true }, async () => {
       if (this.actionTypes[this.props.externalAction]) {  
         if (await this.actionTypes[this.props.externalAction].check()) {
-          this.props.dispatch(setNavigationPath(`${CONFIGURE}_${this.props.coinRequest.mode === NATIVE ? 'NATIVE' : 'LITE'}`));
+          this.props.dispatch(setNavigationPath(`${CONFIGURE}_${this.props.loginConsentRequest.mode === NATIVE ? 'NATIVE' : 'LITE'}`));
         } else {
           this.setState({ loading: false })
         }
@@ -81,7 +81,7 @@ class ExternalAction extends React.Component {
 const mapStateToProps = (state) => {
   return {
     path: state.navigation.path,
-    coinRequest: state.rpc.coinRequest,
+    loginConsentRequest: state.rpc.loginConsentRequest,
     activeUserId: state.user.activeUserId,
     externalAction: state.navigation.externalAction
   };

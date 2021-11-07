@@ -1,7 +1,7 @@
 import {
   ADD_CALLED_TIME,
   SET_RPC_APP_ID,
-  SET_RPC_COIN_REQUEST,
+  SET_RPC_LOGIN_CONSENT_REQUEST,
   SET_RPC_EXPIRY_MARGIN,
   SET_RPC_PASSWORD,
   SET_RPC_PORT,
@@ -72,11 +72,11 @@ export const setRpcWindowId = (windowId) => {
   }
 }
 
-export const setRpcCoinRequest = (coinRequest) => {
+export const setRpcLoginConsentRequest = (loginConsentRequest) => {
   return {
-    type: SET_RPC_COIN_REQUEST,
+    type: SET_RPC_LOGIN_CONSENT_REQUEST,
     payload: {
-      coinRequest
+      loginConsentRequest
     }
   }
 }

@@ -10,7 +10,7 @@ import {
   ADD_CALLED_TIME,
   SET_RPC_EXPIRY_MARGIN,
   SET_RPC_POST_ENCRYPTION,
-  SET_RPC_COIN_REQUEST,
+  SET_RPC_LOGIN_CONSENT_REQUEST,
   SET_RPC_WINDOW_ID
 } from "./rpc.types";
 
@@ -22,11 +22,15 @@ export const rpc = (state = {
   calledTimes: [],
   postEncryption: true,
   windowId: null,
-  coinRequest: {
-    chainTicker: null,
+  loginConsentRequest: {
+    chain: null,
     mode: null,
-    launchConfig: {},
-    originAppInfo: {}
+    signingId: null,
+    signature: null,
+    timestamp: null,
+    challenge: null,
+    redirectUrl: null,
+    onBehalfOf: null
   },
 }, action) => {
   switch (action.type) {
@@ -60,10 +64,10 @@ export const rpc = (state = {
         ...state,
         windowId: action.payload.windowId,
       };
-    case SET_RPC_COIN_REQUEST:
+    case SET_RPC_LOGIN_CONSENT_REQUEST:
       return {
         ...state,
-        coinRequest: action.payload.coinRequest
+        loginConsentRequest: action.payload.loginConsentRequest
       }
     case ADD_CALLED_TIME:
       let newCalledTimes = [...state.calledTimes, action.payload.time]
