@@ -3,6 +3,8 @@ import LoginConsent from './components/LoginConsent/LoginConsent';
 import { MOCK_IPC } from './env';
 import { handleIpc } from './ipc/handlers';
 import { SIMULATED_IPC_COIN_REQUEST, SIMULATED_IPC_INIT } from './__tests__/mocks';
+import { ThemeProvider } from '@mui/material/styles';
+import { mainTheme } from './themes/main';
 
 if (MOCK_IPC) {
   setTimeout(() => {
@@ -20,7 +22,9 @@ if (MOCK_IPC) {
 function App() {
   return (
     <div style={{ height: "100%" }} className="App">
-      <LoginConsent />
+      <ThemeProvider theme={mainTheme}>
+        <LoginConsent />
+      </ThemeProvider>
     </div>
   );
 }

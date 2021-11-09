@@ -1,4 +1,4 @@
-import { Button } from "@material-ui/core";
+import Button from '@mui/material/Button';
 import React from "react";
 
 export const ExternalActionRender = function () {

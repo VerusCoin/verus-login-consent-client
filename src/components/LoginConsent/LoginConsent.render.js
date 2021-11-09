@@ -24,20 +24,22 @@ export const LoginConsentRender = function() {
     )
   };
 
-  return <Login {...COMPONENT_PROPS}/>
-  // return this.props.error != null ? (
-  //   <Error
-  //     error={this.props.error}
-  //     clearError={() => this.props.dispatch(setError(null))}
-  //     completeAuthorization={this.completeAuthorization}
-  //   />
-  // ) : this.props.port != null && this.props.originApp != null ? (
-  //   this.props.pathArray[0] ? (
-  //     COMPONENT_MAP[this.props.pathArray[0]]
-  //   ) : null
-  // ) : (
-  //   <Loading />
-  // );
+  // return <Loading />
+  // return <Error error={{ stack: "This is an error" }}/>
+  // return <Login {...COMPONENT_PROPS}/>
+  return this.props.error != null ? (
+    <Error
+      error={this.props.error}
+      clearError={() => this.props.dispatch(setError(null))}
+      completeAuthorization={this.completeAuthorization}
+    />
+  ) : this.props.port != null && this.props.originApp != null ? (
+    this.props.pathArray[0] ? (
+      COMPONENT_MAP[this.props.pathArray[0]]
+    ) : null
+  ) : (
+    <Loading />
+  );
 }
 
 

@@ -4,6 +4,8 @@
  */
 
 import React from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
 
 class Loading extends React.Component {
   constructor(props) {
@@ -21,7 +23,9 @@ class Loading extends React.Component {
           justifyContent: "center",
         }}
       >
-        {"Loading..."}
+        <Box sx={{ display: 'flex' }}>
+          <CircularProgress />
+        </Box>
       </div>
     );
   }
