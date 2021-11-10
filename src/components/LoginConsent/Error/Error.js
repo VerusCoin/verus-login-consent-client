@@ -1,8 +1,6 @@
 import Button from '@mui/material/Button';
 import React from 'react';
 import { connect } from 'react-redux';
-import { setNavigationPath } from '../../../redux/reducers/navigation/navigation.actions';
-import { AUTHORIZE_COIN } from '../../../utils/constants';
 
 class Error extends React.Component {
   constructor(props) {
@@ -65,6 +63,7 @@ class Error extends React.Component {
                 type="submit"
                 variant="contained"
                 color="secondary"
+                onClick={() => this.props.completeLoginConsent(null, this.props.error)}
                 style={{
                   width: 120,
                   padding: 8

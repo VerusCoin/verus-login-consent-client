@@ -2,7 +2,7 @@
   This reducer contains the information about the rpc channel that the plugin 
   will use to communicate to the wallet process
 */
-import { VERUS_DESKTOP_AUTHENTICATOR } from "../../../utils/constants";
+import { VERUS_LOGIN_CONSENT_UI } from "../../../utils/constants";
 import {
   SET_RPC_APP_ID,
   SET_RPC_PASSWORD,
@@ -18,19 +18,19 @@ export const rpc = (state = {
   port: null,
   password: null,
   expiryMargin: 60000,
-  appId: VERUS_DESKTOP_AUTHENTICATOR,
+  appId: VERUS_LOGIN_CONSENT_UI,
   calledTimes: [],
   postEncryption: true,
   windowId: null,
   loginConsentRequest: {
     chain: null,
-    mode: null,
     signingId: null,
     signature: null,
     timestamp: null,
     challenge: null,
     redirectUrl: null,
-    onBehalfOf: null
+    onBehalfOf: null,
+    request: {}
   },
 }, action) => {
   switch (action.type) {

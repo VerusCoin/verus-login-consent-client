@@ -4,8 +4,10 @@ import { setExternalAction, setNavigationPath } from '../../../redux/reducers/na
 import { 
   LoginRender
 } from './Login.render';
-import { CONFIGURE, EXTERNAL_ACTION, EXTERNAL_LOGIN, NATIVE } from '../../../utils/constants'
-import { checkAndUpdateUsers } from '../../../redux/reducers/user/user.actions';
+import { EXTERNAL_ACTION, EXTERNAL_CHAIN_START, REDIRECT } from '../../../utils/constants'
+import { checkAndUpdateIdentities, setActiveVerusId } from '../../../redux/reducers/identity/identity.actions';
+import { signRequest } from '../../../rpc/calls/signRequest';
+import { setError } from '../../../redux/reducers/error/error.actions';
 
 class Login extends React.Component {
   constructor(props) {
@@ -15,29 +17,46 @@ class Login extends React.Component {
       loading: false
     }
 
-    this.authorizeCoin = this.authorizeCoin.bind(this);
+    this.tryLogin = this.tryLogin.bind(this);
   }
 
-  authorizeCoin() {
+  tryLogin() {
     this.setState({ loading: true }, async () => {
-      const userActions = await checkAndUpdateUsers()
+      const { chain, challenge, signature, request } = this.props.loginConsentRequest
+      const userActions = await checkAndUpdateIdentities(chain)
       userActions.map(action => this.props.dispatch(action))
 
-      if (this.props.activeUserId) {
-        // this.props.setLoginConsentParams(this.props.loginConsentRequest, () => {
-        //   this.props.dispatch(
-        //     setNavigationPath(`${CONFIGURE}_${this.props.loginConsentRequest.mode === NATIVE ? 'NATIVE' : 'LITE'}`)
-        //   );
-        // });
+      if (this.props.canLoginOrGiveConsent()) {
+        try {
+          const sigRes = await signRequest(chain, challenge, signature, request)
+          
+          this.props.setRequestResult(sigRes, () => {
+            this.props.dispatch(setNavigationPath(REDIRECT))
+          })
+        } catch(e) {
+          this.props.dispatch(setError(e))
+        }
       } else {
-        this.props.setLoginConsentParams(this.props.loginConsentRequest, () => {
-          this.props.dispatch(setExternalAction(EXTERNAL_LOGIN))
-          this.props.dispatch(
-            setNavigationPath(EXTERNAL_ACTION)
-          );
-        });
+        this.props.dispatch(setExternalAction(EXTERNAL_CHAIN_START))
+        this.props.dispatch(setNavigationPath(EXTERNAL_ACTION));
       }
     })
+  }
+
+  cancel() {
+    this.setState({ loading: true }, async () => {
+      await this.props.completeLoginConsent()
+    })
+  }
+
+  selectId(address) {
+    this.props.dispatch(
+      setActiveVerusId(
+        address.length == 0
+          ? null
+          : this.props.identities.find((x) => address === x.identity.identityaddress)
+      )
+    );
   }
 
   render() {
@@ -49,7 +68,8 @@ const mapStateToProps = (state) => {
   return {
     path: state.navigation.path,
     loginConsentRequest: state.rpc.loginConsentRequest,
-    activeUserId: state.user.activeUserId,
+    identities: state.identity.identities,
+    activeIdentity: state.identity.activeIdentity,
     originApp: state.origin.originApp
   };
 };

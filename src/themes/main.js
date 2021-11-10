@@ -9,6 +9,9 @@ export const mainTheme = createTheme({
     secondary: {
       main: '#D4313E',
     },
+    success: {
+      main: '#4AA658',
+    },
   },
   typography: {
     button: {

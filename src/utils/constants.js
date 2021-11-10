@@ -1,5 +1,5 @@
 // App ID (fixed for reserve plugins)
-export const VERUS_DESKTOP_AUTHENTICATOR = "VERUS_DESKTOP_AUTHENTICATOR"
+export const VERUS_LOGIN_CONSENT_UI = "VERUS_LOGIN_CONSENT_UI"
 
 // General RPC API terms
 export const NATIVE = 'native'
@@ -18,7 +18,10 @@ export const API_CLOSE_PLUGIN = 'plugin/close'
 export const API_ACTIVATE_COIN = 'coins/activate'
 export const API_CHECK_ZCASH_PARAMS = 'zcashparamsexist'
 export const API_DL_ZCASH_PARAMS = 'zcparamsdl'
-export const API_LOAD_USERS = 'users/load'
+export const API_GET_IDENTITIES = 'get_identities'
+export const API_VERIFY_LOGIN_REQUEST = 'verusid/login/verify_request'
+export const API_SIGN_LOGIN_REQUEST = 'verusid/login/sign_request'
+export const API_GET_CHAIN_INFO = 'get_info'
 export const API_SAVE_USERS = 'users/save'
 export const API_ENCRYPT_KEY = 'encryptkey'
 export const API_DECRYPT_KEY = 'decryptkey'
@@ -44,6 +47,8 @@ export const NATIVE_MINE_THREADS = "NATIVE_MINE_THREADS"
 export const NATIVE_REINDEX = "NATIVE_REINDEX"
 export const ELECTRUM_NSPV = "ELECTRUM_NSPV"
 export const EXTERNAL_ACTION = "EXTERNAL_ACTION"
+export const SELECT_LOGIN_ID = "SELECT_LOGIN_ID"
+export const REDIRECT = "REDIRECT"
 
 export const ZC_PARAMS = {
   DOWNLOADING_ZCASH_KEYS: 'Downloading Zcash keys',
@@ -78,7 +83,7 @@ export const IPC_PUSH_MESSAGE = 'push'
 export const IPC_LOGIN_CONSENT_REQUEST_METHOD = 'VERUS_LOGIN_CONSENT_REQUEST'
 
 // External Actions Types 
-export const EXTERNAL_LOGIN = 'EXTERNAL_LOGIN'
+export const EXTERNAL_CHAIN_START = 'EXTERNAL_CHAIN_START'
 export const EXTERNAL_ZCASHPARAMS = 'EXTERNAL_ZCASHPARAMS'
 
 // Coin Option Constants

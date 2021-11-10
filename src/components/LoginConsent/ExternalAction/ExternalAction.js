@@ -4,10 +4,10 @@ import { setNavigationPath } from '../../../redux/reducers/navigation/navigation
 import { 
   ExternalActionRender
 } from './ExternalAction.render';
-import { CONFIGURE, EXTERNAL_LOGIN, EXTERNAL_ZCASHPARAMS, NATIVE } from '../../../utils/constants'
-import { checkAndUpdateUsers } from '../../../redux/reducers/user/user.actions';
-import { checkZcashParamsFormatted } from '../../../rpc/calls/zcashParams';
+import { EXTERNAL_ACTION, EXTERNAL_CHAIN_START, SELECT_LOGIN_ID } from '../../../utils/constants'
+import { checkAndUpdateAll } from '../../../redux/reducers/identity/identity.actions';
 import { focusVerusDesktop } from '../../../rpc/calls/focus';
+import { SET_API_ERROR } from '../../../redux/reducers/error/error.types';
 
 class ExternalAction extends React.Component {
   constructor(props) {
@@ -17,37 +17,21 @@ class ExternalAction extends React.Component {
       loading: false
     }
 
-    this.tryUser = this.tryUser.bind(this);
+    this.tryContinue = this.tryContinue.bind(this);
     this.openVerusDesktop = this.openVerusDesktop.bind(this)
 
     this.actionTypes = {
-      [EXTERNAL_LOGIN]: {
-        desc: 'You need to be logged into a Verus Desktop profile to connect to a coin. Select a profile within Verus Desktop and press "Continue".',
+      [EXTERNAL_CHAIN_START]: () => ({
+        desc: `You need to launch ${this.props.loginConsentRequest.chain} in native mode and be fully synced to the blockchain in order to login with VerusID. When you are, press 'continue'.`,
         check: async () => {
-          const userActions = await checkAndUpdateUsers()
+          const userActions = await checkAndUpdateAll(this.props.loginConsentRequest.chain)
           userActions.map(action => props.dispatch(action))
 
-          return userActions[0].payload.id
+          return userActions.some((x) => x.type === SET_API_ERROR)
+            ? EXTERNAL_ACTION
+            : SELECT_LOGIN_ID;
         }
-      },
-      [EXTERNAL_ZCASHPARAMS]: {
-        desc: 'In order to connect a coin in native mode, you need ZCash Parameters. To download them, start any native mode coin in Verus Desktop, and press "Continue."',
-        check: async () => {
-          const zcashParamsErrors = await checkZcashParamsFormatted()
-
-          if (zcashParamsErrors.msg === 'success') {
-            const zcpmsRes = zcashParamsErrors.result
-            
-            if (zcpmsRes.length > 0) {
-              return false
-            } else {
-              return true
-            }
-          } else {
-            return false
-          }
-        }
-      }
+      })
     }
   }
 
@@ -61,15 +45,19 @@ class ExternalAction extends React.Component {
     })
   }
 
-  async tryUser() {
+  tryContinue() {
     this.setState({ loading: true }, async () => {
       if (this.actionTypes[this.props.externalAction]) {  
-        if (await this.actionTypes[this.props.externalAction].check()) {
-          this.props.dispatch(setNavigationPath(`${CONFIGURE}_${this.props.loginConsentRequest.mode === NATIVE ? 'NATIVE' : 'LITE'}`));
-        } else {
-          this.setState({ loading: false })
-        }
+        this.props.dispatch(setNavigationPath(await ((this.actionTypes[this.props.externalAction])()).check()))
+
+        this.setState({ loading: false })
       }
+    })
+  }
+
+  cancel() {
+    this.setState({ loading: true }, async () => {
+      await this.props.completeLoginConsent()
     })
   }
 
@@ -82,7 +70,6 @@ const mapStateToProps = (state) => {
   return {
     path: state.navigation.path,
     loginConsentRequest: state.rpc.loginConsentRequest,
-    activeUserId: state.user.activeUserId,
     externalAction: state.navigation.externalAction
   };
 };

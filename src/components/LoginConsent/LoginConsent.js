@@ -1,10 +1,19 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { setError } from '../../redux/reducers/error/error.actions';
+import { checkAndUpdateAll } from '../../redux/reducers/identity/identity.actions';
+import { setExternalAction, setNavigationPath } from '../../redux/reducers/navigation/navigation.actions';
 import { setOriginApp } from '../../redux/reducers/origin/origin.actions';
 import { closePlugin } from '../../rpc/calls/closePlugin';
 import { getPlugin } from '../../rpc/calls/getPlugin';
-import { VERUS_DESKTOP_AUTHENTICATOR } from '../../utils/constants';
+import {
+  API_GET_CHAIN_INFO,
+  API_GET_IDENTITIES,
+  EXTERNAL_ACTION,
+  EXTERNAL_CHAIN_START,
+  SELECT_LOGIN_ID,
+  VERUS_LOGIN_CONSENT_UI,
+} from "../../utils/constants";
 import { 
   LoginConsentRender
 } from './LoginConsent.render';
@@ -14,11 +23,12 @@ class LoginConsent extends React.Component {
     super(props);
 
     this.state = {
-      loginConsentParams: {}
+      requestResult: null
     }
 
-    this.getLoginConsentParams = this.getLoginConsentParams.bind(this)
-    this.completeAuthorization = this.completeAuthorization.bind(this)
+    this.completeLoginConsent = this.completeLoginConsent.bind(this)
+    this.getRequestResult = this.getRequestResult.bind(this)
+    this.canLoginOrGiveConsent = this.canLoginOrGiveConsent.bind(this)
   }
 
   async componentDidUpdate(lastProps) {
@@ -39,16 +49,49 @@ class LoginConsent extends React.Component {
         this.props.dispatch(setError(e));
       }
     }
+
+    if (
+      lastProps !== this.props &&
+      lastProps.loginConsentRequest.chain !== this.props.loginConsentRequest.chain
+    ) {
+      const actions = await checkAndUpdateAll(this.props.loginConsentRequest.chain)
+      actions.map(action => this.props.dispatch(action))
+
+      if (this.canLoginOrGiveConsent()) {
+        this.props.dispatch(setNavigationPath(SELECT_LOGIN_ID))
+      } else {
+        this.props.dispatch(setExternalAction(EXTERNAL_CHAIN_START))
+        this.props.dispatch(setNavigationPath(EXTERNAL_ACTION));
+      }
+    }
   }
 
-  getLoginConsentParams(loginConsentParams, callback) {
-    this.setState({loginConsentParams}, () => {if (callback) callback()})
+  getRequestResult(res, cb) {
+    this.setState({
+      requestResult: res
+    }, () => cb())
   }
 
-  async completeAuthorization(authorized, error) {
+  canLoginOrGiveConsent() {
+    return (
+      this.props.apiErrors[API_GET_CHAIN_INFO] === null &&
+      this.props.apiErrors[API_GET_IDENTITIES] === null &&
+      this.props.chainInfo != null &&
+      this.props.chainInfo.longestchain !== 0 &&
+      this.props.chainInfo.longestchain === this.props.chainInfo.blocks
+    );
+  }
+
+  async completeLoginConsent(result = null, error = null) {
     try {
-      await closePlugin(VERUS_DESKTOP_AUTHENTICATOR, this.props.windowId, true, { authorized, error })
-      console.log({authorized, error})
+      await closePlugin(
+        VERUS_LOGIN_CONSENT_UI,
+        this.props.windowId,
+        true,
+        result != null
+          ? { signature: result.signature, request: result.request, user: result.user }
+          : { error }
+      );
     } catch(e) {
       this.props.dispatch(setError(e))
     }
@@ -69,7 +112,10 @@ const mapStateToProps = (state) => {
     originAppBuiltin: state.origin.originAppBuiltin,
     error: state.error.error,
     rpcPassword: state.rpc.password,
-    windowId: state.rpc.windowId
+    windowId: state.rpc.windowId,
+    loginConsentRequest: state.rpc.loginConsentRequest,
+    chainInfo: state.identity.chainInfo,
+    apiErrors: state.error.apiErrors
   };
 };
 

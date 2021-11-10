@@ -1,8 +1,10 @@
 import Button from '@mui/material/Button';
 import React from "react";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
-export const ExternalActionRender = function () {
+export const RedirectRender = function () {
   const { loading } = this.state
+  const { redirectUrl } = this.props.loginConsentRequest
 
   return (
     <div
@@ -31,7 +33,13 @@ export const ExternalActionRender = function () {
             flex: 1,
           }}
         >
-          <div style={{ fontWeight: "bold" }}>{(this.actionTypes[this.props.externalAction])().desc}</div>
+          <div style={{ fontWeight: "bold" }}>{`Success!`}</div>
+          <div style={{ margin: 16 }}>
+            <CheckCircleIcon color="success" sx={{ fontSize: 72 }} />
+          </div>
+          <div
+            style={{ overflowWrap: "anywhere", maxWidth: 600 }}
+          >{`Press 'done' to go back to ${redirectUrl}`}</div>
         </div>
         <div
           style={{
@@ -52,44 +60,16 @@ export const ExternalActionRender = function () {
           >
             <Button
               type="submit"
-              variant="text"
-              color="secondary"
-              onClick={() => this.cancel()}
-              disabled={loading}
-              style={{
-                width: 120,
-                padding: 8,
-                marginRight: 32
-              }}
-            >
-              {"Cancel"}
-            </Button>
-            <Button
-              type="submit"
               variant="contained"
               color="primary"
-              onClick={() => this.openVerusDesktop()}
-              disabled={loading}
-              style={{
-                width: 200,
-                padding: 8,
-                marginRight: 32
-              }}
-            >
-              {"Open Verus Desktop"}
-            </Button>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              onClick={() => this.tryContinue()}
+              onClick={() => this.redirect()}
               disabled={loading}
               style={{
                 width: 120,
                 padding: 8,
               }}
             >
-              {"Continue"}
+              {"Done"}
             </Button>
           </div>
         </div>

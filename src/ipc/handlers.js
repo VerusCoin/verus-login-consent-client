@@ -26,10 +26,14 @@ export const handleIpc = async (event) => {
         }
       } else if (data.type === IPC_PUSH_MESSAGE && data.method === IPC_LOGIN_CONSENT_REQUEST_METHOD) {
         store.dispatch(setRpcLoginConsentRequest({
-          chain: data.data.ticker,
-          mode: data.data.mode,
-          launchConfig: data.data.launch_config,
-          originAppInfo: data.data.origin_app_info,
+          chain: data.data.chain_id,
+          signingId: data.data.signing_id,
+          signature: data.data.signature,
+          timestamp: data.data.timestamp,
+          challenge: data.data.challenge,
+          redirectUrl: data.data.redirect_url,
+          onBehalfOf: data.data.on_behalf_of,
+          request: data.data.request
         }))
         store.dispatch(setOriginAppBuiltin(data.data.origin_app_info.search_builtin))
         store.dispatch(setOriginAppId(data.data.origin_app_info.id))
