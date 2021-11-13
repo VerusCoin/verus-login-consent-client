@@ -59,7 +59,7 @@ export const LoginRender = function () {
           <FormControl style={{ maxWidth: 560, flex: 1 }}>
             <Select
               value={
-                this.props.activeIdentity == null ? "" : this.props.activeIdentity.identity.address
+                this.props.activeIdentity == null ? "" : this.props.activeIdentity.identity.identityaddress
               }
               displayEmpty
               inputProps={{ "aria-label": "Select a VerusID" }}
@@ -67,12 +67,20 @@ export const LoginRender = function () {
                 textAlign: "start",
                 paddingTop: 2,
               }}
+              onChange={(e) => {
+                return this.selectId(e.target.value)
+              }}
             >
               <MenuItem value="">
                 <em>Select a VerusID</em>
               </MenuItem>
-              {this.props.identities.map((id) => {
-                <MenuItem value={id.identity.address}>{`${id.identity.name}@`}</MenuItem>;
+              {this.props.identities.map((id, index) => {
+                return (
+                  <MenuItem
+                    key={index}
+                    value={id.identity.identityaddress}
+                  >{`${id.identity.name}@`}</MenuItem>
+                );
               })}
             </Select>
           </FormControl>

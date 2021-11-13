@@ -4,12 +4,12 @@
   is currently.
 */
 
-import { AUTHORIZE_COIN } from '../../../utils/constants';
+import { SELECT_LOGIN_ID } from '../../../utils/constants';
 import { SET_EXTERNAL_ACTION, SET_NAVIGATION_PATH } from './navigation.types'
 
 export const navigation = (state = {
-  path: AUTHORIZE_COIN,
-  pathArray: [AUTHORIZE_COIN],
+  path: SELECT_LOGIN_ID,
+  pathArray: [SELECT_LOGIN_ID],
   externalAction: ""
 }, action) => {
   switch (action.type) {

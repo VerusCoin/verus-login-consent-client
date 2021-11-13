@@ -4,8 +4,10 @@ import { setError } from '../../redux/reducers/error/error.actions';
 import { checkAndUpdateAll } from '../../redux/reducers/identity/identity.actions';
 import { setExternalAction, setNavigationPath } from '../../redux/reducers/navigation/navigation.actions';
 import { setOriginApp } from '../../redux/reducers/origin/origin.actions';
+import store from '../../redux/store';
 import { closePlugin } from '../../rpc/calls/closePlugin';
 import { getPlugin } from '../../rpc/calls/getPlugin';
+import { verifyRequest } from '../../rpc/calls/verifyRequest';
 import {
   API_GET_CHAIN_INFO,
   API_GET_IDENTITIES,
@@ -54,10 +56,18 @@ class LoginConsent extends React.Component {
       lastProps !== this.props &&
       lastProps.loginConsentRequest.chain !== this.props.loginConsentRequest.chain
     ) {
-      const actions = await checkAndUpdateAll(this.props.loginConsentRequest.chain)
+      const { chain, challenge, signature, signingId } = this.props.loginConsentRequest
+
+      const actions = await checkAndUpdateAll(chain)
       actions.map(action => this.props.dispatch(action))
 
       if (this.canLoginOrGiveConsent()) {
+        const verificatonCheck = await verifyRequest(chain, challenge, signingId, signature)
+
+        if (!verificatonCheck.verified) {
+          this.props.dispatch(setError(new Error(verificatonCheck.message)))
+        }
+
         this.props.dispatch(setNavigationPath(SELECT_LOGIN_ID))
       } else {
         this.props.dispatch(setExternalAction(EXTERNAL_CHAIN_START))

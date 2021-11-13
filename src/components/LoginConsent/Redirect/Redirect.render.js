@@ -37,9 +37,9 @@ export const RedirectRender = function () {
           <div style={{ margin: 16 }}>
             <CheckCircleIcon color="success" sx={{ fontSize: 72 }} />
           </div>
-          <div
+          {redirectUrl != null && <div
             style={{ overflowWrap: "anywhere", maxWidth: 600 }}
-          >{`Press 'done' to go back to ${redirectUrl}`}</div>
+          >{`Press 'done' to go back to ${redirectUrl}`}</div>}
         </div>
         <div
           style={{

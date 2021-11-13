@@ -1,6 +1,5 @@
 import Button from '@mui/material/Button';
 import React from 'react';
-import { connect } from 'react-redux';
 
 class Error extends React.Component {
   constructor(props) {
@@ -79,4 +78,4 @@ class Error extends React.Component {
   }
 }
 
-export default connect()(Error);
+export default Error;

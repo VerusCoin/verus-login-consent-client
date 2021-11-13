@@ -7,39 +7,48 @@ import { setOriginAppId, setOriginAppBuiltin } from "../redux/reducers/origin/or
 
 export const handleIpc = async (event) => {
   try {
-    if ((!DEVMODE && event.origin === IPC_ORIGIN_PRODUCTION) || (DEVMODE && event.origin === IPC_ORIGIN_DEV)) {
-      const data = JSON.parse(event.data)
-  
+    if (
+      typeof event.data === "string" &&
+      ((!DEVMODE && event.origin === IPC_ORIGIN_PRODUCTION) ||
+        (DEVMODE && event.origin === IPC_ORIGIN_DEV))
+    ) {
+      const data = JSON.parse(event.data);
+
       if (data.type === IPC_INIT_MESSAGE) {
-        store.dispatch(setRpcExpiryMargin(data.data.expiry_margin))
-        store.dispatch(setRpcPort(data.data.rpc_port))
-        store.dispatch(setRpcPostEncryption(data.data.post_encryption))
-        store.dispatch(setRpcWindowId(data.data.window_id))
-  
+        store.dispatch(setRpcExpiryMargin(data.data.expiry_margin));
+        store.dispatch(setRpcPort(data.data.rpc_port));
+        store.dispatch(setRpcPostEncryption(data.data.post_encryption));
+        store.dispatch(setRpcWindowId(data.data.window_id));
+
         try {
-          if (MOCK_IPC) store.dispatch(setRpcPassword(RPC_PASSWORD))
-          else store.dispatch(setRpcPassword(window.bridge.getSecretSync().BuiltinSecret))
-        } catch(e) {
-          console.error("Error loading api secrets!")
-          console.error(e)
-          throw e
+          if (MOCK_IPC) store.dispatch(setRpcPassword(RPC_PASSWORD));
+          else store.dispatch(setRpcPassword(window.bridge.getSecretSync().BuiltinSecret));
+        } catch (e) {
+          console.error("Error loading api secrets!");
+          console.error(e);
+          throw e;
         }
-      } else if (data.type === IPC_PUSH_MESSAGE && data.method === IPC_LOGIN_CONSENT_REQUEST_METHOD) {
-        store.dispatch(setRpcLoginConsentRequest({
-          chain: data.data.chain_id,
-          signingId: data.data.signing_id,
-          signature: data.data.signature,
-          timestamp: data.data.timestamp,
-          challenge: data.data.challenge,
-          redirectUrl: data.data.redirect_url,
-          onBehalfOf: data.data.on_behalf_of,
-          request: data.data.request
-        }))
-        store.dispatch(setOriginAppBuiltin(data.data.origin_app_info.search_builtin))
-        store.dispatch(setOriginAppId(data.data.origin_app_info.id))
+      } else if (
+        data.type === IPC_PUSH_MESSAGE &&
+        data.method === IPC_LOGIN_CONSENT_REQUEST_METHOD
+      ) {
+        store.dispatch(
+          setRpcLoginConsentRequest({
+            chain: data.data.chain_id,
+            signingId: data.data.signing_id,
+            signature: data.data.signature,
+            timestamp: data.data.timestamp,
+            challenge: data.data.challenge,
+            redirectUrl: data.data.redirect_url,
+            onBehalfOf: data.data.on_behalf_of,
+            request: data.data.request,
+          })
+        );
+        store.dispatch(setOriginAppBuiltin(data.data.origin_app_info.search_builtin));
+        store.dispatch(setOriginAppId(data.data.origin_app_info.id));
       }
-    } else {
-      console.log(`[IPC] recieved event message from unapproved origin (${event.origin}), blocked`)
+    } else if (typeof event.data === "string") {
+      console.log(`[IPC] recieved event message from unapproved origin (${event.origin}), blocked`);
     }
   } catch(e) {
     console.error(e)

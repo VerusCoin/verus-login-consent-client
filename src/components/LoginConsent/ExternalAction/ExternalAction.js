@@ -31,6 +31,15 @@ class ExternalAction extends React.Component {
             ? EXTERNAL_ACTION
             : SELECT_LOGIN_ID;
         }
+      }),
+      [EXTERNAL_CHAIN_START]: () => ({
+        desc: `Launch ${this.props.loginConsentRequest.chain} in native mode, and ensure that you have at least one identity that you're able to sign with to login with VerusID. Then press 'continue'.`,
+        check: async () => {
+          const userActions = await checkAndUpdateAll(this.props.loginConsentRequest.chain)
+          userActions.map(action => props.dispatch(action))
+
+          return this.props.identities.length > 0 ? SELECT_LOGIN_ID : EXTERNAL_ACTION;
+        }
       })
     }
   }
@@ -70,7 +79,8 @@ const mapStateToProps = (state) => {
   return {
     path: state.navigation.path,
     loginConsentRequest: state.rpc.loginConsentRequest,
-    externalAction: state.navigation.externalAction
+    externalAction: state.navigation.externalAction,
+    identities: state.identity.identities
   };
 };
 

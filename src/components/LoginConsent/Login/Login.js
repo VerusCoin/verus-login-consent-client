@@ -18,6 +18,8 @@ class Login extends React.Component {
     }
 
     this.tryLogin = this.tryLogin.bind(this);
+    this.selectId = this.selectId.bind(this);
+    this.cancel = this.cancel.bind(this);
   }
 
   tryLogin() {
@@ -28,7 +30,13 @@ class Login extends React.Component {
 
       if (this.props.canLoginOrGiveConsent()) {
         try {
-          const sigRes = await signRequest(chain, challenge, signature, request)
+          const sigRes = await signRequest(
+            chain,
+            challenge,
+            this.props.activeIdentity.identity.identityaddress,
+            signature,
+            request
+          );
           
           this.props.setRequestResult(sigRes, () => {
             this.props.dispatch(setNavigationPath(REDIRECT))
