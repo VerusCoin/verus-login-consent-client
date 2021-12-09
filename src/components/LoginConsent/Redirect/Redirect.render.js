@@ -4,7 +4,8 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 export const RedirectRender = function () {
   const { loading } = this.state
-  const { redirectUrl } = this.props.loginConsentRequest
+  const redirectUrls = this.props.loginConsentRequest.request.challenge.client.redirect_uris;
+  const redirectUrl = redirectUrls ? redirectUrls[0] : null;
 
   return (
     <div

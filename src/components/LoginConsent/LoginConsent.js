@@ -54,23 +54,23 @@ class LoginConsent extends React.Component {
 
     if (
       lastProps !== this.props &&
-      lastProps.loginConsentRequest.chain !== this.props.loginConsentRequest.chain
+      lastProps.loginConsentRequest.request !== this.props.loginConsentRequest.request
     ) {
-      const { chain, challenge, signature, signingId } = this.props.loginConsentRequest
+      const { request } = this.props.loginConsentRequest;
 
-      const actions = await checkAndUpdateAll(chain)
-      actions.map(action => this.props.dispatch(action))
+      const actions = await checkAndUpdateAll(request.chain_id);
+      actions.map((action) => this.props.dispatch(action));
 
       if (this.canLoginOrGiveConsent()) {
-        const verificatonCheck = await verifyRequest(chain, challenge, signingId, signature)
+        const verificatonCheck = await verifyRequest(request);
 
         if (!verificatonCheck.verified) {
-          this.props.dispatch(setError(new Error(verificatonCheck.message)))
+          this.props.dispatch(setError(new Error(verificatonCheck.message)));
         }
 
-        this.props.dispatch(setNavigationPath(SELECT_LOGIN_ID))
+        this.props.dispatch(setNavigationPath(SELECT_LOGIN_ID));
       } else {
-        this.props.dispatch(setExternalAction(EXTERNAL_CHAIN_START))
+        this.props.dispatch(setExternalAction(EXTERNAL_CHAIN_START));
         this.props.dispatch(setNavigationPath(EXTERNAL_ACTION));
       }
     }
@@ -99,8 +99,8 @@ class LoginConsent extends React.Component {
         this.props.windowId,
         true,
         result != null
-          ? { signature: result.signature, request: result.request, user: result.user }
-          : { error }
+          ? result
+          : { error: error != null ? error.message : error }
       );
     } catch(e) {
       this.props.dispatch(setError(e))

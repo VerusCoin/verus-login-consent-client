@@ -23,13 +23,6 @@ export const rpc = (state = {
   postEncryption: true,
   windowId: null,
   loginConsentRequest: {
-    chain: null,
-    signingId: null,
-    signature: null,
-    timestamp: null,
-    challenge: null,
-    redirectUrl: null,
-    onBehalfOf: null,
     request: {}
   },
 }, action) => {

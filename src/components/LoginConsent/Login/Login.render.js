@@ -7,7 +7,10 @@ import Select from '@mui/material/Select';
 export const LoginRender = function () {
   const { loading } = this.state
   const { loginConsentRequest } = this.props
-  const { chain, signingId, onBehalfOf } = loginConsentRequest
+  const { request } = loginConsentRequest
+  const { chain_id, signing_id, challenge } = request
+  const { client, requested_scope } = challenge // TODO: DISPLAY REQUESTED SCOPE!!
+  const { name } = client
 
   return (
     <div
@@ -43,8 +46,8 @@ export const LoginRender = function () {
             }}
           >
             {"Login to"}&nbsp;
-            <a href="#">{signingId}</a>
-            &nbsp;{`with VerusID${onBehalfOf != null ? ` (on behalf of ${onBehalfOf})` : ""} on ${chain}`}
+            <a href="#">{signing_id}</a>
+            &nbsp;{`with VerusID${name != null ? ` (on behalf of ${name})` : ""} on ${chain_id}`}
           </div>
         </div>
         <div
@@ -59,7 +62,9 @@ export const LoginRender = function () {
           <FormControl style={{ maxWidth: 560, flex: 1 }}>
             <Select
               value={
-                this.props.activeIdentity == null ? "" : this.props.activeIdentity.identity.identityaddress
+                this.props.activeIdentity == null
+                  ? ""
+                  : this.props.activeIdentity.identity.identityaddress
               }
               displayEmpty
               inputProps={{ "aria-label": "Select a VerusID" }}
@@ -68,7 +73,7 @@ export const LoginRender = function () {
                 paddingTop: 2,
               }}
               onChange={(e) => {
-                return this.selectId(e.target.value)
+                return this.selectId(e.target.value);
               }}
             >
               <MenuItem value="">

@@ -6,8 +6,9 @@ import {
 } from './Login.render';
 import { EXTERNAL_ACTION, EXTERNAL_CHAIN_START, REDIRECT } from '../../../utils/constants'
 import { checkAndUpdateIdentities, setActiveVerusId } from '../../../redux/reducers/identity/identity.actions';
-import { signRequest } from '../../../rpc/calls/signRequest';
+import { signResponse } from '../../../rpc/calls/signResponse';
 import { setError } from '../../../redux/reducers/error/error.actions';
+import { LoginConsentDecision, LoginConsentRequest, LoginConsentResponse } from 'verus-typescript-primitives';
 
 class Login extends React.Component {
   constructor(props) {
@@ -24,19 +25,24 @@ class Login extends React.Component {
 
   tryLogin() {
     this.setState({ loading: true }, async () => {
-      const { chain, challenge, signature, request } = this.props.loginConsentRequest
-      const userActions = await checkAndUpdateIdentities(chain)
+      const { request } = this.props.loginConsentRequest
+      const userActions = await checkAndUpdateIdentities(request.chain_id)
       userActions.map(action => this.props.dispatch(action))
 
       if (this.props.canLoginOrGiveConsent()) {
         try {
-          const sigRes = await signRequest(
-            chain,
-            challenge,
-            this.props.activeIdentity.identity.identityaddress,
-            signature,
-            request
-          );
+          const response = new LoginConsentResponse({
+            chain_id: request.chain_id,
+            signing_id: this.props.activeIdentity.identity.identityaddress,
+            decision: new LoginConsentDecision({
+              subject: this.props.activeIdentity.identity.identityaddress,
+              remember: false,
+              remember_for: 0,
+              request: request
+            }),
+          });
+          
+          const sigRes = await signResponse(response);
           
           this.props.setRequestResult(sigRes, () => {
             this.props.dispatch(setNavigationPath(REDIRECT))

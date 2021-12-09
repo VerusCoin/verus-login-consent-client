@@ -22,26 +22,26 @@ class ExternalAction extends React.Component {
 
     this.actionTypes = {
       [EXTERNAL_CHAIN_START]: () => ({
-        desc: `You need to launch ${this.props.loginConsentRequest.chain} in native mode and be fully synced to the blockchain in order to login with VerusID. When you are, press 'continue'.`,
+        desc: `You need to launch ${this.props.loginConsentRequest.request.chain_id} in native mode and be fully synced to the blockchain in order to login with VerusID. When you are, press 'continue'.`,
         check: async () => {
-          const userActions = await checkAndUpdateAll(this.props.loginConsentRequest.chain)
-          userActions.map(action => props.dispatch(action))
+          const userActions = await checkAndUpdateAll(this.props.loginConsentRequest.request.chain_id);
+          userActions.map((action) => props.dispatch(action));
 
           return userActions.some((x) => x.type === SET_API_ERROR)
             ? EXTERNAL_ACTION
             : SELECT_LOGIN_ID;
-        }
+        },
       }),
       [EXTERNAL_CHAIN_START]: () => ({
-        desc: `Launch ${this.props.loginConsentRequest.chain} in native mode, and ensure that you have at least one identity that you're able to sign with to login with VerusID. Then press 'continue'.`,
+        desc: `Launch ${this.props.loginConsentRequest.request.chain_id} in native mode, and ensure that you have at least one identity that you're able to sign with to login with VerusID. Then press 'continue'.`,
         check: async () => {
-          const userActions = await checkAndUpdateAll(this.props.loginConsentRequest.chain)
-          userActions.map(action => props.dispatch(action))
+          const userActions = await checkAndUpdateAll(this.props.loginConsentRequest.request.chain_id);
+          userActions.map((action) => props.dispatch(action));
 
           return this.props.identities.length > 0 ? SELECT_LOGIN_ID : EXTERNAL_ACTION;
-        }
-      })
-    }
+        },
+      }),
+    };
   }
 
   openVerusDesktop() {
