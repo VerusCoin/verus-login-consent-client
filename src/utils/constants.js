@@ -1,3 +1,5 @@
+import { IDENTITY_VIEW } from "verus-typescript-primitives"
+
 // App ID (fixed for reserve plugins)
 export const VERUS_LOGIN_CONSENT_UI = "VERUS_LOGIN_CONSENT_UI"
 
@@ -48,6 +50,8 @@ export const NATIVE_REINDEX = "NATIVE_REINDEX"
 export const ELECTRUM_NSPV = "ELECTRUM_NSPV"
 export const EXTERNAL_ACTION = "EXTERNAL_ACTION"
 export const SELECT_LOGIN_ID = "SELECT_LOGIN_ID"
+export const CONSENT_TO_SCOPE = "CONSENT_TO_SCOPE"
+export const LOADING_DISPLAY = "LOADING_DISPLAY"
 export const REDIRECT = "REDIRECT"
 
 export const ZC_PARAMS = {
@@ -98,3 +102,13 @@ export const ZCASH_DAEMON = 'zcashd'
 export const KOMODO_DAEMON = 'komodod'
 export const ZCASH_CONF_NAME = 'zcash'
 export const KOMODO_CONF_NAME = 'komodo'
+
+// Permission Scopes
+export const SCOPES = {
+  ["VerusID"]: {
+    [IDENTITY_VIEW.vdxfid]: {
+      description: "Permission to view the VerusID you login with.",
+    },
+  },
+};
+export const SUPPORTED_SCOPES = [IDENTITY_VIEW.vdxfid];

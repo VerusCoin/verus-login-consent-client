@@ -1,6 +1,7 @@
 import React from 'react';
 import {
-  EXTERNAL_ACTION, REDIRECT, SELECT_LOGIN_ID
+  CONSENT_TO_SCOPE,
+  EXTERNAL_ACTION, LOADING_DISPLAY, REDIRECT, SELECT_LOGIN_ID
 } from '../../utils/constants'
 import ExternalAction from './ExternalAction/ExternalAction'
 import Loading from '../Loading';
@@ -8,6 +9,7 @@ import Error from './Error/Error';
 import Login from './Login/Login';
 import { setError } from '../../redux/reducers/error/error.actions';
 import Redirect from './Redirect/Redirect';
+import Consent from './Consent/Consent';
 
 export const LoginConsentRender = function() {
   const COMPONENT_PROPS = {
@@ -34,6 +36,14 @@ export const LoginConsentRender = function() {
         {...COMPONENT_PROPS}
       />
     ),
+    [CONSENT_TO_SCOPE]: (
+      <Consent 
+        {...COMPONENT_PROPS}
+      />
+    ),
+    [LOADING_DISPLAY]: (
+      <Loading />
+    )
   };
 
   return this.props.error != null ? (

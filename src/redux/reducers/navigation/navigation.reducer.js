@@ -4,12 +4,12 @@
   is currently.
 */
 
-import { SELECT_LOGIN_ID } from '../../../utils/constants';
+import { LOADING_DISPLAY } from '../../../utils/constants';
 import { SET_EXTERNAL_ACTION, SET_NAVIGATION_PATH } from './navigation.types'
 
 export const navigation = (state = {
-  path: SELECT_LOGIN_ID,
-  pathArray: [SELECT_LOGIN_ID],
+  path: LOADING_DISPLAY,
+  pathArray: [LOADING_DISPLAY],
   externalAction: ""
 }, action) => {
   switch (action.type) {

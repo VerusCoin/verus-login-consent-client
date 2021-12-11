@@ -1,10 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { LoginConsentRequest } from 'verus-typescript-primitives';
+import { IDENTITY_VIEW } from 'verus-typescript-primitives/dist/vdxf/scopes';
 import { setError } from '../../redux/reducers/error/error.actions';
 import { checkAndUpdateAll } from '../../redux/reducers/identity/identity.actions';
 import { setExternalAction, setNavigationPath } from '../../redux/reducers/navigation/navigation.actions';
 import { setOriginApp } from '../../redux/reducers/origin/origin.actions';
-import store from '../../redux/store';
 import { closePlugin } from '../../rpc/calls/closePlugin';
 import { getPlugin } from '../../rpc/calls/getPlugin';
 import { verifyRequest } from '../../rpc/calls/verifyRequest';
@@ -14,6 +15,7 @@ import {
   EXTERNAL_ACTION,
   EXTERNAL_CHAIN_START,
   SELECT_LOGIN_ID,
+  SUPPORTED_SCOPES,
   VERUS_LOGIN_CONSENT_UI,
 } from "../../utils/constants";
 import { 
@@ -31,6 +33,7 @@ class LoginConsent extends React.Component {
     this.completeLoginConsent = this.completeLoginConsent.bind(this)
     this.getRequestResult = this.getRequestResult.bind(this)
     this.canLoginOrGiveConsent = this.canLoginOrGiveConsent.bind(this)
+    this.checkRequest = this.checkRequest.bind(this)
   }
 
   async componentDidUpdate(lastProps) {
@@ -62,17 +65,43 @@ class LoginConsent extends React.Component {
       actions.map((action) => this.props.dispatch(action));
 
       if (this.canLoginOrGiveConsent()) {
-        const verificatonCheck = await verifyRequest(request);
-
-        if (!verificatonCheck.verified) {
-          this.props.dispatch(setError(new Error(verificatonCheck.message)));
-        }
+        await this.checkRequest(request)
 
         this.props.dispatch(setNavigationPath(SELECT_LOGIN_ID));
       } else {
         this.props.dispatch(setExternalAction(EXTERNAL_CHAIN_START));
         this.props.dispatch(setNavigationPath(EXTERNAL_ACTION));
       }
+    }
+  }
+
+  // Checks request for signature authenticity, and other things that would immediately disqualify
+  // it. If any problems are found, an error is thrown.
+  async checkRequest(req) {
+    try {
+      // Typescript sanity check
+      const request = new LoginConsentRequest(req)
+
+      // Check request signature
+      const verificatonCheck = await verifyRequest(request.stringable());
+
+      if (!verificatonCheck.verified) {
+        throw new Error(verificatonCheck.message)
+      }
+
+      // Ensure request has required scope (can see ID)
+      if (request.challenge.requested_scope == null || !request.challenge.requested_scope.includes(IDENTITY_VIEW.vdxfid)) {
+        throw new Error("Service is not asking permission to view your ID")
+      }
+
+      for (const scope of request.challenge.requested_scope) {
+        if (!SUPPORTED_SCOPES.includes(scope)) {
+          throw new Error("Service is requesting unsupported permission")
+        }
+      }
+    } catch(e) {
+      console.error(e)
+      this.props.dispatch(setError(new Error(e.message)));
     }
   }
 

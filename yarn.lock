@@ -9139,7 +9139,7 @@ verror@1.10.0:
 
 "verus-typescript-primitives@https://github.com/michaeltout/verus-typescript-primitives.git":
   version "1.0.0"
-  resolved "https://github.com/michaeltout/verus-typescript-primitives.git#56d836ccddfbdb34227692866857838961bffd01"
+  resolved "https://github.com/michaeltout/verus-typescript-primitives.git#be9237c5d4a6c7ec4d5bb140101a3507fcbbc6ac"
 
 vm-browserify@^1.0.1:
   version "1.1.2"
