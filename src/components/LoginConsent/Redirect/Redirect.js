@@ -13,12 +13,17 @@ class Redirect extends React.Component {
     }
 
     this.redirect = this.redirect.bind(this);
+    this.redirects = props.loginConsentRequest.request.challenge.client.redirect_uris;
+    this.redirectinfo = this.redirects ? this.redirects[0] : null;
   }
 
   redirect() {
     this.setState({ loading: true }, () => {
-      this.props.completeLoginConsent(this.props.requestResult)
-    })
+      this.props.completeLoginConsent({
+        response: this.props.requestResult.response,
+        redirect: this.redirectinfo,
+      });
+    });
   }
 
   render() {

@@ -4,8 +4,6 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 export const RedirectRender = function () {
   const { loading } = this.state
-  const redirectUrls = this.props.loginConsentRequest.request.challenge.client.redirect_uris;
-  const redirectUrl = redirectUrls ? redirectUrls[0] : null;
 
   return (
     <div
@@ -38,9 +36,11 @@ export const RedirectRender = function () {
           <div style={{ margin: 16 }}>
             <CheckCircleIcon color="success" sx={{ fontSize: 72 }} />
           </div>
-          {redirectUrl != null && <div
-            style={{ overflowWrap: "anywhere", maxWidth: 600 }}
-          >{`Press 'done' to go back to ${redirectUrl}`}</div>}
+          {this.redirectinfo != null && (
+            <div
+              style={{ overflowWrap: "anywhere", maxWidth: 600 }}
+            >{`Press 'done' to go back to ${this.redirectinfo.uri}`}</div>
+          )}
         </div>
         <div
           style={{

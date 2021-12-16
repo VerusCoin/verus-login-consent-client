@@ -11,17 +11,19 @@ import store from './redux/store';
 import App from './App';
 import './index.css';
 import ErrorBoundary from './components/LoginConsent/Error/ErrorBoundary';
+import { ThemeProvider } from '@mui/material/styles';
+import { mainTheme } from './themes/main';
 
 const router = (
-  <ErrorBoundary>
-    <Provider store={ store }>
-      <Router history={ hashHistory }>
-        <Route
-          exact path="/"
-          component={ App } />
-      </Router>
-    </Provider>
-  </ErrorBoundary>
+  <Provider store={store}>
+    <ThemeProvider theme={mainTheme}>
+      <ErrorBoundary>
+        <Router history={hashHistory}>
+          <Route exact path="/" component={App} />
+        </Router>
+      </ErrorBoundary>
+    </ThemeProvider>
+  </Provider>
 );
 
 document.addEventListener('DOMContentLoaded', () => {
