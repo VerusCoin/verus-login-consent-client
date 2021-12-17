@@ -23,7 +23,8 @@
     "verus-typescript-primitives": "https://github.com/michaeltout/verus-typescript-primitives.git"
   },
   "scripts": {
-    "start": "./node_modules/webpack-dashboard/bin/webpack-dashboard.js -t 'verus-desktop-authenticator' -- ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --colors --no-info --mode development"
+    "start": "./node_modules/webpack-dashboard/bin/webpack-dashboard.js -t 'verus-desktop-authenticator' -- ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --colors --no-info --mode development",
+    "build": "rm -rf ./build && mkdir build && mkdir build/assets && cp -R src/assets build/ && NODE_ENV=\"production\" ./node_modules/.bin/webpack --mode production"
   },
   "eslintConfig": {
     "extends": [

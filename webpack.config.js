@@ -170,7 +170,6 @@ module.exports = {
         uglifyOptions: {
           warnings: false,
           compress: {
-            ie8: false,
             conditionals: true,
             unused: true,
             comparisons: true,
