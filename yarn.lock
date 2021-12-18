@@ -1998,9 +1998,9 @@ bindings@^1.5.0:
   dependencies:
     nanoassert "^1.0.0"
 
-"blake2b@https://github.com/michaeltout/blake2b.git":
+"blake2b@https://github.com/VerusCoin/blake2b.git":
   version "2.1.3"
-  resolved "https://github.com/michaeltout/blake2b.git#777f844b986173d08fc27fe9547c6f6320a82d62"
+  resolved "https://github.com/VerusCoin/blake2b.git#777f844b986173d08fc27fe9547c6f6320a82d62"
   dependencies:
     blake2b-wasm "https://github.com/BitGo/blake2b-wasm#193cdb71656c1a6c7f89b05d0327bb9b758d071b"
     nanoassert "^1.0.0"
@@ -9137,9 +9137,9 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-"verus-typescript-primitives@https://github.com/michaeltout/verus-typescript-primitives.git":
+"verus-typescript-primitives@https://github.com/VerusCoin/verus-typescript-primitives.git":
   version "1.0.0"
-  resolved "https://github.com/michaeltout/verus-typescript-primitives.git#d966417ccbc7669c12115f9381463beb698ce6fd"
+  resolved "https://github.com/VerusCoin/verus-typescript-primitives.git#67fc0610d6893893973f0da598bd267d42cc3c99"
 
 vm-browserify@^1.0.1:
   version "1.1.2"
