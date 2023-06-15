@@ -79,6 +79,7 @@
     "webpack-dev-server": "3.11.0"
   },
   "resolutions": {
+    "blake2b-wasm": "https://github.com/michaeltout/blake2b-wasm",
     "lodash": "4.17.21",
     "static-eval": "2.0.2",
     "tar": "4.4.15",

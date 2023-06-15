@@ -1992,11 +1992,11 @@ bindings@^1.5.0:
   dependencies:
     file-uri-to-path "1.0.0"
 
-"blake2b-wasm@https://github.com/BitGo/blake2b-wasm#193cdb71656c1a6c7f89b05d0327bb9b758d071b":
+"blake2b-wasm@https://github.com/BitGo/blake2b-wasm#193cdb71656c1a6c7f89b05d0327bb9b758d071b", "blake2b-wasm@https://github.com/michaeltout/blake2b-wasm":
   version "2.0.0"
-  resolved "https://github.com/BitGo/blake2b-wasm#193cdb71656c1a6c7f89b05d0327bb9b758d071b"
+  resolved "https://github.com/michaeltout/blake2b-wasm#a16070b30bb8d8aee670f0c69b642913eca79998"
   dependencies:
-    nanoassert "^1.0.0"
+    nanoassert "1.0.0"
 
 "blake2b@https://github.com/VerusCoin/blake2b.git":
   version "2.1.3"
@@ -6123,6 +6123,11 @@ nan@^2.13.2:
   version "2.15.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.15.0.tgz#3f34a473ff18e15c1b5626b62903b5ad6e665fee"
   integrity sha512-8ZtvEnA2c5aYCZYd1cvgdnU6cqwixRoYg70xPLWUws5ORTa/lnw+u4amixRS/Ac5U5mQVgp9pnlSUnbNWFaWZQ==
+
+nanoassert@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/nanoassert/-/nanoassert-1.0.0.tgz#555a1120bf265e1d33332ef7b5803710d5e20aff"
+  integrity sha512-gNkL8hXBP0QYvOh8FNHL/WhHYMaRSjivjq3wGOnyIoq6JaCRtghFJT//nEW2Y1C86JcVzagmdQPKaJbe7quA9w==
 
 nanoassert@^1.0.0:
   version "1.1.0"
