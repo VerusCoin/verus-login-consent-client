@@ -8,9 +8,8 @@ export const LoginRender = function () {
   const { loading } = this.state
   const { loginConsentRequest } = this.props
   const { request } = loginConsentRequest
-  const { chain_id, signing_id, challenge } = request
-  const { client, requested_scope } = challenge // TODO: DISPLAY REQUESTED SCOPE!!
-  const { name } = client
+  const { chain_id, signedBy } = request
+  const { friendlyname } = signedBy
 
   return (
     <div
@@ -45,9 +44,9 @@ export const LoginRender = function () {
               flexDirection: "row",
             }}
           >
-            {"Login to"}&nbsp;
-            <a href="#">{signing_id}</a>
-            &nbsp;{`with VerusID${name != null ? ` (on behalf of ${name})` : ""} on ${chain_id}`}
+            {"VerusID"}&nbsp;
+            <a href="#">{friendlyname}</a>
+            &nbsp;{`is requesting login with VerusID on ${chain_id}`}
           </div>
         </div>
         <div

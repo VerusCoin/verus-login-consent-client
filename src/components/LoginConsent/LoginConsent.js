@@ -6,6 +6,7 @@ import { setError } from '../../redux/reducers/error/error.actions';
 import { checkAndUpdateAll } from '../../redux/reducers/identity/identity.actions';
 import { setExternalAction, setNavigationPath } from '../../redux/reducers/navigation/navigation.actions';
 import { setOriginApp } from '../../redux/reducers/origin/origin.actions';
+import { setRpcLoginConsentRequest } from '../../redux/reducers/rpc/rpc.actions';
 import { closePlugin } from '../../rpc/calls/closePlugin';
 import { getPlugin } from '../../rpc/calls/getPlugin';
 import { verifyRequest } from '../../rpc/calls/verifyRequest';
@@ -21,6 +22,7 @@ import {
 import { 
   LoginConsentRender
 } from './LoginConsent.render';
+import { getIdentity } from '../../rpc/calls/getIdentity';
 
 class LoginConsent extends React.Component {
   constructor(props) {
@@ -59,6 +61,7 @@ class LoginConsent extends React.Component {
       lastProps !== this.props &&
       lastProps.loginConsentRequest.request !== this.props.loginConsentRequest.request
     ) {
+
       const { request } = this.props.loginConsentRequest;
 
       const actions = await checkAndUpdateAll(request.chain_id);
@@ -82,23 +85,42 @@ class LoginConsent extends React.Component {
       // Typescript sanity check
       const request = new LoginConsentRequest(req)
 
+      if (request.challenge.context != null) {
+        if (Object.keys(request.challenge.context.kv).length !== 0) {
+          throw new Error("Login requests with context are currently unsupported.")
+        }
+      }
+      
       // Check request signature
-      const verificatonCheck = await verifyRequest(request.stringable());
+      const verificatonCheck = await verifyRequest(request.toJson());
 
       if (!verificatonCheck.verified) {
         throw new Error(verificatonCheck.message)
       }
 
-      // Ensure request has required scope (can see ID)
-      if (request.challenge.requested_scope == null || !request.challenge.requested_scope.includes(IDENTITY_VIEW.vdxfid)) {
-        throw new Error("Service is not asking permission to view your ID")
-      }
-
-      for (const scope of request.challenge.requested_scope) {
-        if (!SUPPORTED_SCOPES.includes(scope)) {
-          throw new Error("Service is requesting unsupported permission")
+      for (const requestedPermission of request.challenge.requested_access) {
+        if (!SUPPORTED_SCOPES.includes(requestedPermission.vdxfkey)) {
+          throw new Error(
+            'Unrecognized requested permission ' +
+              requestedPermission.vdxfkey,
+          );
         }
       }
+
+      if (request.challenge.requested_access.length == 0) {
+        throw new Error(
+          'No permissions being requested in loginconsent request.',
+        );
+      }
+
+      // Get the signing identity for displaying later.
+      const signedBy = await getIdentity(req.chain_id, request.signing_id)
+      req.signedBy = signedBy;
+
+      this.props.dispatch(setRpcLoginConsentRequest({
+        request: req
+      }));
+
     } catch(e) {
       console.error(e)
       this.props.dispatch(setError(new Error(e.message)));

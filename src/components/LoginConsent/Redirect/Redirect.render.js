@@ -39,7 +39,8 @@ export const RedirectRender = function () {
           {this.redirectinfo != null && (
             <div
               style={{ overflowWrap: "anywhere", maxWidth: 600 }}
-            >{`Press 'done' to go back to ${this.redirectinfo.uri}`}</div>
+            >{`Press 'done' to complete login ${this.extraInfo}`}
+            </div>
           )}
         </div>
         <div

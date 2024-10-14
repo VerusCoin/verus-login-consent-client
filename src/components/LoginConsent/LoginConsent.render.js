@@ -17,7 +17,8 @@ export const LoginConsentRender = function() {
     completeLoginConsent: this.completeLoginConsent,
     requestResult: this.state.requestResult,
     setRequestResult: this.getRequestResult,
-    canLoginOrGiveConsent: this.canLoginOrGiveConsent
+    canLoginOrGiveConsent: this.canLoginOrGiveConsent,
+    checkRequest: this.checkRequest
   }
 
   const COMPONENT_MAP = {

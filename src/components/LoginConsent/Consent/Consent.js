@@ -9,28 +9,32 @@ import { checkAndUpdateIdentities } from '../../../redux/reducers/identity/ident
 import { signResponse } from '../../../rpc/calls/signResponse';
 import { setError } from '../../../redux/reducers/error/error.actions';
 import { LoginConsentDecision, LoginConsentResponse } from 'verus-typescript-primitives';
+import BigNumber from 'bignumber.js';
 
 class Consent extends React.Component {
   constructor(props) {
     super(props);
-    const scope = props.loginConsentRequest.request.challenge.requested_scope
+    const requestedPermissions = props.loginConsentRequest.request.challenge.requested_access
 
     let leftText = []
     let rightText = []
 
-    if (scope != null) {
+    if (requestedPermissions != null) {
       for (const header in SCOPES) {
         for (const vdxfid in SCOPES[header]) {
-          if (scope.includes(vdxfid)) {
-            const value = SCOPES[header][vdxfid]
+          // Match permissions to the possible ids in the scopes.
+          for (const permission of requestedPermissions) {
+            if (permission.vdxfkey === vdxfid) {
+              const value = SCOPES[header][vdxfid]
 
-            if (rightText.length > 0) {
-              leftText.push('\n')
-            } else {
-              leftText.push(header)
+              if (rightText.length > 0) {
+                leftText.push('\n')
+              } else {
+                leftText.push(header)
+              }
+    
+              rightText.push(value.description)
             }
-  
-            rightText.push(value.description)
           }
         }
       }
@@ -54,16 +58,20 @@ class Consent extends React.Component {
 
       if (this.props.canLoginOrGiveConsent()) {
         try {
-          const response = new LoginConsentResponse({
-            chain_id: request.chain_id,
+          let response = new LoginConsentResponse({
+            system_id: request.system_id,
             signing_id: this.props.activeIdentity.identity.identityaddress,
             decision: new LoginConsentDecision({
-              subject: this.props.activeIdentity.identity.identityaddress,
-              remember: false,
-              remember_for: 0,
-              request: request
-            }),
+              decision_id: request.challenge.challenge_id,
+              request: request,
+              created_at: BigNumber(Date.now())
+                .dividedBy(1000)
+                .decimalPlaces(0)
+                .toNumber(),
+            })
           });
+
+          response.chain_id = request.chain_id
           
           const sigRes = await signResponse(response);
           

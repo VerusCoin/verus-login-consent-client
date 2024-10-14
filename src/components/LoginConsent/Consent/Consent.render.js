@@ -6,8 +6,8 @@ export const ConsentRender = function () {
   const { loading } = this.state
   const { loginConsentRequest } = this.props
   const { request } = loginConsentRequest
-  const { signing_id, challenge } = request
-  const { clien } = challenge
+  const { signedBy } = request
+  const { friendlyname } = signedBy
 
   return (
     <div
@@ -42,7 +42,7 @@ export const ConsentRender = function () {
               flexDirection: "row",
             }}
           >
-            <a href="#">{signing_id}</a>
+            <a href="#">{friendlyname}</a>
             &nbsp;{` is requesting permission for the following`}
           </div>
         </div>

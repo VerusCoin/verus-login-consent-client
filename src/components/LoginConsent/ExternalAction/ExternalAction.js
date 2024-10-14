@@ -38,7 +38,13 @@ class ExternalAction extends React.Component {
           const userActions = await checkAndUpdateAll(this.props.loginConsentRequest.request.chain_id);
           userActions.map((action) => props.dispatch(action));
 
-          return this.props.identities.length > 0 ? SELECT_LOGIN_ID : EXTERNAL_ACTION;
+          // Verify the request if the daemon was not running when first trying.
+          if (this.props.identities.length > 0) {
+            await this.props.checkRequest(this.props.loginConsentRequest.request)
+            return SELECT_LOGIN_ID
+          }
+
+          return EXTERNAL_ACTION;
         },
       }),
     };
@@ -57,9 +63,8 @@ class ExternalAction extends React.Component {
   tryContinue() {
     this.setState({ loading: true }, async () => {
       if (this.actionTypes[this.props.externalAction]) {  
-        this.props.dispatch(setNavigationPath(await ((this.actionTypes[this.props.externalAction])()).check()))
-
         this.setState({ loading: false })
+        this.props.dispatch(setNavigationPath(await ((this.actionTypes[this.props.externalAction])()).check()))
       }
     })
   }

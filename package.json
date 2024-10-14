@@ -10,6 +10,8 @@
     "@testing-library/jest-dom": "5.11.4",
     "@testing-library/react": "11.1.0",
     "@testing-library/user-event": "12.1.10",
+    "base64url": "https://github.com/michaeltout/base64url.git",
+    "bignumber.js": "^9.1.2",
     "blake2b": "https://github.com/VerusCoin/blake2b.git",
     "crypto-js": "4.2.0",
     "prop-types": "15.7.2",
@@ -22,7 +24,8 @@
   },
   "scripts": {
     "start": "npx webpack-dashboard -t 'verus-desktop-authenticator' -- npx webpack-dev-server --colors --no-info --mode development",
-    "build": "npx webpack --mode production"
+    "build": "npx webpack --mode production",
+    "devbuild": "npx webpack --mode development"
   },
   "eslintConfig": {
     "extends": [
