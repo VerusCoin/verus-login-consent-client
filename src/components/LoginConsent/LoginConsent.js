@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { LoginConsentRequest } from 'verus-typescript-primitives';
-import { IDENTITY_VIEW } from 'verus-typescript-primitives/dist/vdxf/scopes';
 import { setError } from '../../redux/reducers/error/error.actions';
 import { checkAndUpdateAll } from '../../redux/reducers/identity/identity.actions';
 import { setExternalAction, setNavigationPath } from '../../redux/reducers/navigation/navigation.actions';
@@ -15,7 +14,7 @@ import {
   API_GET_IDENTITIES,
   EXTERNAL_ACTION,
   EXTERNAL_CHAIN_START,
-  SELECT_LOGIN_ID,
+  CONSENT_TO_SCOPE,
   SUPPORTED_SCOPES,
   VERUS_LOGIN_CONSENT_UI,
 } from "../../utils/constants";
@@ -70,7 +69,7 @@ class LoginConsent extends React.Component {
       if (this.canLoginOrGiveConsent()) {
         await this.checkRequest(request)
 
-        this.props.dispatch(setNavigationPath(SELECT_LOGIN_ID));
+        this.props.dispatch(setNavigationPath(CONSENT_TO_SCOPE));
       } else {
         this.props.dispatch(setExternalAction(EXTERNAL_CHAIN_START));
         this.props.dispatch(setNavigationPath(EXTERNAL_ACTION));

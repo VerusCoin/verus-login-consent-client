@@ -117,7 +117,7 @@ export const LoginRender = function () {
                 padding: 8,
               }}
             >
-              {"Cancel"}
+              {"Back"}
             </Button>
             <Button
               variant="contained"
@@ -129,7 +129,7 @@ export const LoginRender = function () {
                 padding: 8,
               }}
             >
-              {"Login"}
+              {"Continue"}
             </Button>
           </div>
         </div>

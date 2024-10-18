@@ -4,8 +4,12 @@ import { setExternalAction, setNavigationPath } from '../../../redux/reducers/na
 import { 
   LoginRender
 } from './Login.render';
-import { CONSENT_TO_SCOPE, EXTERNAL_ACTION, EXTERNAL_CHAIN_START } from '../../../utils/constants'
+import { CONSENT_TO_SCOPE, EXTERNAL_ACTION, EXTERNAL_CHAIN_START, REDIRECT } from '../../../utils/constants'
 import { checkAndUpdateIdentities, setActiveVerusId } from '../../../redux/reducers/identity/identity.actions';
+import { signResponse } from '../../../rpc/calls/signResponse';
+import { setError } from '../../../redux/reducers/error/error.actions';
+import { LoginConsentDecision, LoginConsentResponse } from 'verus-typescript-primitives';
+import BigNumber from 'bignumber.js';
 
 class Login extends React.Component {
   constructor(props) {
@@ -27,7 +31,30 @@ class Login extends React.Component {
       userActions.map(action => this.props.dispatch(action))
 
       if (this.props.canLoginOrGiveConsent()) {
-        this.props.dispatch(setNavigationPath(CONSENT_TO_SCOPE));
+        try {
+          let response = new LoginConsentResponse({
+            system_id: request.system_id,
+            signing_id: this.props.activeIdentity.identity.identityaddress,
+            decision: new LoginConsentDecision({
+              decision_id: request.challenge.challenge_id,
+              request: request,
+              created_at: BigNumber(Date.now())
+                .dividedBy(1000)
+                .decimalPlaces(0)
+                .toNumber(),
+            })
+          });
+  
+          response.chain_id = request.chain_id
+          
+          const sigRes = await signResponse(response);
+          
+          this.props.setRequestResult(sigRes, () => {
+            this.props.dispatch(setNavigationPath(REDIRECT))
+          })
+        } catch(e) {
+          this.props.dispatch(setError(e))
+        }
       } else {
         this.props.dispatch(setExternalAction(EXTERNAL_CHAIN_START))
         this.props.dispatch(setNavigationPath(EXTERNAL_ACTION));
@@ -36,9 +63,7 @@ class Login extends React.Component {
   }
 
   cancel() {
-    this.setState({ loading: true }, async () => {
-      await this.props.completeLoginConsent()
-    })
+    this.props.dispatch(setNavigationPath(CONSENT_TO_SCOPE));
   }
 
   selectId(address) {

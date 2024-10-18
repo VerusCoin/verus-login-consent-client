@@ -4,7 +4,7 @@ import { setNavigationPath } from '../../../redux/reducers/navigation/navigation
 import { 
   ExternalActionRender
 } from './ExternalAction.render';
-import { EXTERNAL_ACTION, EXTERNAL_CHAIN_START, SELECT_LOGIN_ID } from '../../../utils/constants'
+import { CONSENT_TO_SCOPE, EXTERNAL_ACTION, EXTERNAL_CHAIN_START, SELECT_LOGIN_ID } from '../../../utils/constants'
 import { checkAndUpdateAll } from '../../../redux/reducers/identity/identity.actions';
 import { focusVerusDesktop } from '../../../rpc/calls/focus';
 import { SET_API_ERROR } from '../../../redux/reducers/error/error.types';
@@ -41,7 +41,7 @@ class ExternalAction extends React.Component {
           // Verify the request if the daemon was not running when first trying.
           if (this.props.identities.length > 0) {
             await this.props.checkRequest(this.props.loginConsentRequest.request)
-            return SELECT_LOGIN_ID
+            return CONSENT_TO_SCOPE
           }
 
           return EXTERNAL_ACTION;

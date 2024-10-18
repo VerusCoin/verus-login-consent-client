@@ -88,12 +88,12 @@ export const ConsentRender = function () {
                 padding: 8,
               }}
             >
-              {"Back"}
+              {"Cancel"}
             </Button>
             <Button
               variant="contained"
               color="primary"
-              disabled={loading || this.props.activeIdentity == null}
+              disabled={loading}
               onClick={() => this.tryLogin()}
               style={{
                 width: 120,
