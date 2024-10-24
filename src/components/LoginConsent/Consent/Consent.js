@@ -11,6 +11,10 @@ class Consent extends React.Component {
   constructor(props) {
     super(props);
     const requestedPermissions = props.loginConsentRequest.request.challenge.requested_access
+    const chainId = props.loginConsentRequest.request.chain_id
+    const signedBy = props.loginConsentRequest.request.signedBy
+    const friendlyName = signedBy.friendlyname
+    this.displayName = friendlyName.substring(0, friendlyName.lastIndexOf("." + chainId))
 
     let leftText = []
     let rightText = []

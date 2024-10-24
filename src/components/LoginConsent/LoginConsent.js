@@ -22,6 +22,8 @@ import {
   LoginConsentRender
 } from './LoginConsent.render';
 import { getIdentity } from '../../rpc/calls/getIdentity';
+import { getSignatureInfo } from '../../rpc/calls/getSignatureInfo';
+import { getBlock } from '../../rpc/calls/getBlock';
 
 class LoginConsent extends React.Component {
   constructor(props) {
@@ -116,6 +118,11 @@ class LoginConsent extends React.Component {
       const signedBy = await getIdentity(req.chain_id, request.signing_id)
       req.signedBy = signedBy;
 
+      // Get information on the signature for displaying later.
+      const sigInfo = await getSignatureInfo(req.chain_id, request.system_id, request.signature.signature, signedBy.identity.identityaddress)
+      const sigBlockInfo = await getBlock(req.chain_id, sigInfo.height.toString())
+
+      req.sigBlockInfo = sigBlockInfo
       this.props.dispatch(setRpcLoginConsentRequest({
         request: req
       }));

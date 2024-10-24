@@ -1,13 +1,13 @@
 import React from "react";
 import Button from '@mui/material/Button';
-import DividedText from "../../../containers/DividedText";
+import { RequestCard } from "../../../containers/RequestCard/RequestCard";
 
 export const ConsentRender = function () {
   const { loading } = this.state
   const { loginConsentRequest } = this.props
   const { request } = loginConsentRequest
-  const { signedBy } = request
-  const { friendlyname } = signedBy
+  const { sigBlockInfo, signedBy } = request
+  const { time } = sigBlockInfo
 
   return (
     <div
@@ -42,10 +42,16 @@ export const ConsentRender = function () {
               flexDirection: "row",
             }}
           >
-            <a href="#">{friendlyname}</a>
-            &nbsp;{` is requesting permission for the following`}
+          {this.displayName + "@"}{` is requesting login with VerusID`}
           </div>
         </div>
+        <RequestCard
+          chainId={request.chain_id}
+          signedBy={signedBy}
+          displayName={this.displayName}
+          time={time}
+        >
+        </RequestCard>
         <div
           style={{
             display: "flex",
@@ -54,11 +60,7 @@ export const ConsentRender = function () {
             justifyContent: "center",
             flex: 1,
           }}
-        >
-          <DividedText
-            left={<div style={{ fontWeight: "bold" }}>{this.leftText.join("\n")}</div>}
-            right={<div>{this.rightText.join("\n")}</div>}
-          />
+        > 
         </div>
         <div
           style={{
