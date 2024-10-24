@@ -16,26 +16,13 @@ class Consent extends React.Component {
     const friendlyName = signedBy.friendlyname
     this.displayName = friendlyName.substring(0, friendlyName.lastIndexOf("." + chainId))
 
-    let leftText = []
-    let rightText = []
+    let permissionsDescriptions = []
 
     if (requestedPermissions != null) {
-      for (const header in SCOPES) {
-        for (const vdxfid in SCOPES[header]) {
-          // Match permissions to the possible ids in the scopes.
-          for (const permission of requestedPermissions) {
-            if (permission.vdxfkey === vdxfid) {
-              const value = SCOPES[header][vdxfid]
-
-              if (rightText.length > 0) {
-                leftText.push('\n')
-              } else {
-                leftText.push(header)
-              }
-    
-              rightText.push(value.description)
-            }
-          }
+      // Match permissions to the possible ids in the scopes.
+      for (const permission of requestedPermissions) {
+        if (SCOPES[permission.vdxfkey]) {
+          permissionsDescriptions.push(SCOPES[permission.vdxfkey].description);
         }
       }
     }
@@ -46,8 +33,7 @@ class Consent extends React.Component {
 
     this.tryLogin = this.tryLogin.bind(this);
     this.cancel = this.cancel.bind(this);
-    this.leftText = leftText;
-    this.rightText = rightText;
+    this.permissionsText = permissionsDescriptions.join(", ");
   }
 
   tryLogin() {

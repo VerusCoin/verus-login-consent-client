@@ -15,7 +15,8 @@ export function RequestCard(props) {
   const signedBy = props.signedBy
   const displayName = props.displayName
   const time = props.time
-  
+  const permissions = props.permissions
+
   const [openIdentity, setOpenIdentity] = React.useState(false);
 
   const handleIdentityClick = () => {
@@ -100,7 +101,7 @@ export function RequestCard(props) {
 
         <ListItem divider>
           <ListItemText primary="Permissions requested" disableTypography sx={{ fontWeight: 'bold' }}/>
-          <ListItemText primary="View your chosen identity" disableTypography sx={{textAlign:'right'}}/>
+          <ListItemText primary={permissions} disableTypography sx={{textAlign:'right'}}/>
         </ListItem>
 
         <ListItem divider>

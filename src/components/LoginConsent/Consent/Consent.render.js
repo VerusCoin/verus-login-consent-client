@@ -50,6 +50,7 @@ export const ConsentRender = function () {
           signedBy={signedBy}
           displayName={this.displayName}
           time={time}
+          permissions={this.permissionsText}
         >
         </RequestCard>
         <div

@@ -108,10 +108,8 @@ export const KOMODO_CONF_NAME = 'komodo'
 
 // Permission Scopes
 export const SCOPES = {
-  ["VerusID"]: {
-    [IDENTITY_VIEW.vdxfid]: {
-      description: "Permission to view the VerusID you login with.",
-    },
+  [IDENTITY_VIEW.vdxfid]: {
+    description: "View your chosen identity",
   },
 };
 export const SUPPORTED_SCOPES = [IDENTITY_VIEW.vdxfid];
