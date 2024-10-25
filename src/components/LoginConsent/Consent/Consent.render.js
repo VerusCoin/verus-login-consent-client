@@ -1,7 +1,7 @@
 import React from "react";
 import Button from '@mui/material/Button';
 import { RequestCard } from "../../../containers/RequestCard/RequestCard";
-import { VerusIdLogo } from "../../../images"
+import { VerusIdLogo } from "../../../images";
 
 export const ConsentRender = function () {
   const { loading } = this.state
@@ -28,7 +28,7 @@ export const ConsentRender = function () {
           alignItems: "center",
         }}
       >
-          <img src={VerusIdLogo} width={'55%'} height={'10%'}/>
+        <img src={VerusIdLogo} width={'55%'} height={'10%'}/>
         <div
           style={{
             width: "100%",

@@ -4,7 +4,7 @@ import { setExternalAction, setNavigationPath } from '../../../redux/reducers/na
 import { 
   ConsentRender
 } from './Consent.render';
-import { EXTERNAL_ACTION, EXTERNAL_CHAIN_START, SCOPES, SELECT_LOGIN_ID } from '../../../utils/constants'
+import { EXTERNAL_ACTION, EXTERNAL_CHAIN_START, SCOPES, SELECT_LOGIN_ID } from '../../../utils/constants';
 import { checkAndUpdateIdentities } from '../../../redux/reducers/identity/identity.actions';
 
 class Consent extends React.Component {

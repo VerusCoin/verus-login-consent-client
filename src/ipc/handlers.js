@@ -4,6 +4,7 @@ import { setRpcLoginConsentRequest, setRpcExpiryMargin, setRpcPassword, setRpcPo
 import store from "../redux/store"
 import { IPC_LOGIN_CONSENT_REQUEST_METHOD, IPC_INIT_MESSAGE, IPC_ORIGIN_DEV, IPC_ORIGIN_PRODUCTION, IPC_PUSH_MESSAGE } from "../utils/constants"
 import { setOriginAppId, setOriginAppBuiltin } from "../redux/reducers/origin/origin.actions"
+import { setError } from "../redux/reducers/error/error.actions"
 
 export const handleIpc = async (event) => {
   try {
@@ -76,5 +77,6 @@ export const handleIpc = async (event) => {
     }
   } catch(e) {
     console.error(e)
+    store.dispatch(setError(new Error(e.message)));
   }
 }

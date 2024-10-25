@@ -10,6 +10,21 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { unixToDate } from '../../utils/math';
 
+// RequestIdentityItem is a list item for displaying the identity in 
+// the dropdown section of the request.
+function RequestIdentityItem({field, value}) {
+  return (
+    <ListItem divider sx={{pl:4}}>
+      <ListItemText primary={field} disableTypography/>
+      <ListItemText
+        primary={value}
+        disableTypography
+        sx={{textAlign:'right', color: "#878787"}}
+      />
+    </ListItem>
+  )
+}
+
 export function RequestCard(props) {
   const chainId = props.chainId
   const signedBy = props.signedBy
@@ -40,62 +55,41 @@ export function RequestCard(props) {
         </ListItemButton>
         <Collapse in={openIdentity} timeout="auto" unmountOnExit>
           <List component="div" dense disablePadding>
-            <ListItem divider sx={{pl:4}}>
-              <ListItemText primary="Name" disableTypography/>
-              <ListItemText
-                primary={displayName}
-                disableTypography
-                sx={{textAlign:'right', color: "#878787"}}
-              />
-            </ListItem>
-            <ListItem divider sx={{pl:4}}>
-              <ListItemText primary="Identity Address" disableTypography/>
-              <ListItemText 
-                primary={signedBy.identity.identityaddress}
-                disableTypography
-                sx={{textAlign:'right', color: "#878787"}}
-              />
-            </ListItem>
-            <ListItem divider sx={{pl:4}}>
-              <ListItemText primary="Status" disableTypography/>
-              <ListItemText
-                primary={signedBy.status}
-                disableTypography
-                sx={{textAlign:'right', color: "#878787"}}
-              />
-            </ListItem>
-            <ListItem divider sx={{pl:4}}>
-              <ListItemText primary="Revocation Authority" disableTypography/>
-              <ListItemText 
-                primary={signedBy.identity.revocationauthority}
-                disableTypography
-                sx={{textAlign:'right', color: "#878787"}}
-              />
-            </ListItem>
-            <ListItem divider sx={{pl:4}}>
-              <ListItemText primary="Recovery Authority" disableTypography/>
-              <ListItemText 
-                primary={signedBy.identity.recoveryauthority}
-                disableTypography
-                sx={{textAlign:'right', color: "#878787"}}
-              />
-            </ListItem>
-            <ListItem divider sx={{pl:4}}>
-              <ListItemText primary="System" disableTypography/>
-              <ListItemText
-                primary={chainId} 
-                disableTypography
-                sx={{textAlign:'right', color: "#878787"}}
-              />
-            </ListItem>
-            <ListItem divider sx={{pl:4}}>
-              <ListItemText primary="Primary Address #1" disableTypography/>
-              <ListItemText
-                primary={signedBy.identity.primaryaddresses[0]}
-                disableTypography
-                sx={{textAlign:'right', color: "#878787"}}
-              />
-            </ListItem>
+            <RequestIdentityItem
+              field={"Name"}
+              value={displayName}
+            >
+            </RequestIdentityItem>
+            <RequestIdentityItem
+              field={"Identity Address"}
+              value={signedBy.identity.identityaddress}
+            >
+            </RequestIdentityItem>
+            <RequestIdentityItem
+              field={"Status"}
+              value={signedBy.status}
+            >
+            </RequestIdentityItem>
+            <RequestIdentityItem
+              field={"Revocation Authority"}
+              value={signedBy.identity.revocationauthority}
+            >
+            </RequestIdentityItem>
+            <RequestIdentityItem
+              field={"Recovery Authority"}
+              value={signedBy.identity.recoveryauthority}
+            >
+            </RequestIdentityItem>
+            <RequestIdentityItem
+              field={"System"}
+              value={chainId}
+            >
+            </RequestIdentityItem>
+            <RequestIdentityItem
+              field={"Primary Address #1"}
+              value={signedBy.identity.primaryaddresses[0]}
+            >
+            </RequestIdentityItem>
           </List>
         </Collapse>
 

@@ -1,6 +1,7 @@
 import Button from '@mui/material/Button';
 import React from "react";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { VerusIdLogo } from "../../../images";
 
 export const RedirectRender = function () {
   const { loading } = this.state
@@ -21,8 +22,10 @@ export const RedirectRender = function () {
           padding: 32,
           flexDirection: "column",
           justifyContent: "center",
+          alignItems: "center",
         }}
       >
+        <img src={VerusIdLogo} width={'55%'} height={'10%'}/>
         <div
           style={{
             display: "flex",
@@ -60,6 +63,19 @@ export const RedirectRender = function () {
               justifyContent: "space-between",
             }}
           >
+            <Button
+              variant="text"
+              disabled={loading}
+              color="secondary"
+              onClick={() => this.cancel()}
+              style={{
+                width: 120,
+                marginRight: 32,
+                padding: 8,
+              }}
+            >
+              {"Back"}
+            </Button>
             <Button
               type="submit"
               variant="contained"

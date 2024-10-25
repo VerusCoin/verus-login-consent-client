@@ -3,6 +3,7 @@ import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import { VerusIdLogo } from "../../../images";
 
 export const LoginRender = function () {
   const { loading } = this.state
@@ -26,8 +27,10 @@ export const LoginRender = function () {
           display: "flex",
           padding: 32,
           flexDirection: "column",
+          alignItems: "center",
         }}
       >
+        <img src={VerusIdLogo} width={'55%'} height={'10%'}/>
         <div
           style={{
             width: "100%",
@@ -39,21 +42,21 @@ export const LoginRender = function () {
             style={{
               width: "100%",
               display: "flex",
-              justifyContent: "flex-start",
+              justifyContent: "center",
               alignItems: "center",
               flexDirection: "row",
+              padding: 8,
             }}
           >
-            {"VerusID"}&nbsp;
-            <a href="#">{friendlyname}</a>
-            &nbsp;{`is requesting login with VerusID on ${chain_id}`}
+            {`Select an Identity`}
           </div>
         </div>
         <div
           style={{
+            width: "100%",
             display: "flex",
             flexDirection: "row",
-            alignItems: "center",
+            alignItems: "flex-start",
             justifyContent: "center",
             flex: 1,
           }}

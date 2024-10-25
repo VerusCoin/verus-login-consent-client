@@ -3,7 +3,9 @@ import { connect } from 'react-redux';
 import { 
   RedirectRender
 } from './Redirect.render';
-import { LOGIN_CONSENT_REDIRECT_VDXF_KEY, LOGIN_CONSENT_WEBHOOK_VDXF_KEY } from 'verus-typescript-primitives';
+import { LOGIN_CONSENT_REDIRECT_VDXF_KEY } from 'verus-typescript-primitives';
+import { SELECT_LOGIN_ID } from '../../../utils/constants';
+import { setNavigationPath } from '../../../redux/reducers/navigation/navigation.actions';
 
 class Redirect extends React.Component {
   constructor(props) {
@@ -22,6 +24,10 @@ class Redirect extends React.Component {
       const url = new URL(this.redirectinfo.uri);
       this.extraInfo = ` and return to ${url.protocol}//${url.host}`
     }
+  }
+
+  cancel() {
+    this.props.dispatch(setNavigationPath(SELECT_LOGIN_ID));
   }
 
   redirect() {
