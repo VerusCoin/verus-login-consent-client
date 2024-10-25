@@ -1,6 +1,7 @@
 import React from "react";
 import Button from '@mui/material/Button';
 import { RequestCard } from "../../../containers/RequestCard/RequestCard";
+import { VerusIdLogo } from "../../../images"
 
 export const ConsentRender = function () {
   const { loading } = this.state
@@ -24,45 +25,31 @@ export const ConsentRender = function () {
           display: "flex",
           padding: 32,
           flexDirection: "column",
+          alignItems: "center",
         }}
       >
+          <img src={VerusIdLogo} width={'55%'} height={'10%'}/>
         <div
           style={{
             width: "100%",
             display: "flex",
-            justifyContent: "flex-start",
-          }}
-        >
-          <div
-            style={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "flex-start",
-              alignItems: "center",
-              flexDirection: "row",
-            }}
-          >
-          {this.displayName + "@"}{` is requesting login with VerusID`}
-          </div>
-        </div>
-        <RequestCard
-          chainId={request.chain_id}
-          signedBy={signedBy}
-          displayName={this.displayName}
-          time={time}
-          permissions={this.permissionsText}
-        >
-        </RequestCard>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
             alignItems: "center",
+            padding: 8,
             justifyContent: "center",
-            flex: 1,
           }}
-        > 
+        >
+          {this.displayName + "@"}{` is requesting login with VerusID`}
         </div>
+
+          <RequestCard
+            chainId={request.chain_id}
+            signedBy={signedBy}
+            displayName={this.displayName}
+            time={time}
+            permissions={this.permissionsText}
+            height={"54vh"}
+          >
+          </RequestCard>
         <div
           style={{
             width: "100%",
@@ -70,6 +57,7 @@ export const ConsentRender = function () {
             flexDirection: "row",
             alignItems: "flex-end",
             justifyContent: "flex-end",
+            marginTop: "auto",
           }}
         >
           <div

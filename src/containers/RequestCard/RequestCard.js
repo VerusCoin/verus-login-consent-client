@@ -16,6 +16,7 @@ export function RequestCard(props) {
   const displayName = props.displayName
   const time = props.time
   const permissions = props.permissions
+  const height = props.height
 
   const [openIdentity, setOpenIdentity] = React.useState(false);
 
@@ -24,13 +25,12 @@ export function RequestCard(props) {
   };
 
   return (
-    <>
     <Card square sx={{
         marginTop:1,
         marginBottom:1,
         width: '100%',
         overflowY: 'scroll',
-        maxHeight: 400,
+        maxHeight: height,
       }}> 
       <List>
         <ListItemButton divider onClick={handleIdentityClick}>
@@ -115,7 +115,5 @@ export function RequestCard(props) {
         </ListItem>
       </List>
     </Card> 
-    
-    </>
   )
 }
