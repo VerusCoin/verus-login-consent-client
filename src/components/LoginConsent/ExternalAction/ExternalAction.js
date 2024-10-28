@@ -22,9 +22,9 @@ class ExternalAction extends React.Component {
 
     this.actionTypes = {
       [EXTERNAL_CHAIN_START]: () => ({
-        desc: `You need to launch ${this.props.loginConsentRequest.request.chain_id} in native mode and be fully synced to the blockchain in order to login with VerusID. When you are, press 'continue'.`,
+        desc: `You need to launch ${this.props.loginConsentRequest.request.chainTicker} in native mode and be fully synced to the blockchain in order to login with VerusID. When you are, press 'continue'.`,
         check: async () => {
-          const userActions = await checkAndUpdateAll(this.props.loginConsentRequest.request.chain_id);
+          const userActions = await checkAndUpdateAll(this.props.loginConsentRequest.request.chainTicker);
           userActions.map((action) => props.dispatch(action));
 
           return userActions.some((x) => x.type === SET_API_ERROR)
@@ -33,14 +33,12 @@ class ExternalAction extends React.Component {
         },
       }),
       [EXTERNAL_CHAIN_START]: () => ({
-        desc: `Launch ${this.props.loginConsentRequest.request.chain_id} in native mode, and ensure that you have at least one identity that you're able to sign with to login with VerusID. Then press 'continue'.`,
+        desc: `Launch ${this.props.loginConsentRequest.request.chainTicker} in native mode, and ensure that you have at least one identity that you're able to sign with to login with VerusID. Then press 'continue'.`,
         check: async () => {
-          const userActions = await checkAndUpdateAll(this.props.loginConsentRequest.request.chain_id);
-          userActions.map((action) => props.dispatch(action));
+          // Process the request again if any of the required daemons were not running when first trying.
+          await this.props.handleRequest();
 
-          // Verify the request if the daemon was not running when first trying.
           if (this.props.identities.length > 0) {
-            await this.props.checkRequest(this.props.loginConsentRequest.request)
             return CONSENT_TO_SCOPE
           }
 

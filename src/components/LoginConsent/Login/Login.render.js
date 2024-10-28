@@ -7,10 +7,6 @@ import { VerusIdLogo } from "../../../images";
 
 export const LoginRender = function () {
   const { loading } = this.state
-  const { loginConsentRequest } = this.props
-  const { request } = loginConsentRequest
-  const { chain_id, signedBy } = request
-  const { friendlyname } = signedBy
 
   return (
     <div

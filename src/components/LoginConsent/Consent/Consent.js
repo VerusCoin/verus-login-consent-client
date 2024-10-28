@@ -11,10 +11,10 @@ class Consent extends React.Component {
   constructor(props) {
     super(props);
     const requestedPermissions = props.loginConsentRequest.request.challenge.requested_access
-    const chainId = props.loginConsentRequest.request.chain_id
+    const chainName = props.loginConsentRequest.request.chainName
     const signedBy = props.loginConsentRequest.request.signedBy
     const friendlyName = signedBy.friendlyname
-    this.displayName = friendlyName.substring(0, friendlyName.lastIndexOf("." + chainId))
+    this.displayName = friendlyName.substring(0, friendlyName.lastIndexOf("." + chainName))
 
     let permissionsDescriptions = []
 
@@ -39,7 +39,7 @@ class Consent extends React.Component {
   tryLogin() {
     this.setState({ loading: true }, async () => {
       const { request } = this.props.loginConsentRequest
-      const userActions = await checkAndUpdateIdentities(request.chain_id)
+      const userActions = await checkAndUpdateIdentities(request.chainTicker)
       userActions.map(action => this.props.dispatch(action))
 
       if (this.props.canLoginOrGiveConsent()) {

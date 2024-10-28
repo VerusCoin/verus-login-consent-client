@@ -48,21 +48,9 @@ export const handleIpc = async (event) => {
           throw e;
         }
 
-        // Translate the system id into a chain name for displaying and use in api requests.
-        let chain_id
-
-        switch (data.data.request.system_id) {
-          case "i5w5MuNik5NtLcYmNzcvaoixooEebB6MGV":
-            chain_id = "VRSC";
-            break;
-          case "iJhCezBExJHvtyH3fGhNnt2NhU4Ztkf2yq":
-            chain_id = "VRSCTEST";
-            break;
-          default:
-            throw new Error("Unknown system id.")
-        }
-
-        data.data.request.chain_id = chain_id
+        // Add the name of daemon guaranteed to be is running on desktop so 
+        // it can be used to look up other chains.
+        data.data.request.mainChain = data.data.origin_app_info.main_chain_ticker;
 
         store.dispatch(
           setRpcLoginConsentRequest({

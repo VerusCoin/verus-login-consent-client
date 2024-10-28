@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { LoginConsentRequest } from 'verus-typescript-primitives';
 import { setError } from '../../redux/reducers/error/error.actions';
-import { checkAndUpdateAll } from '../../redux/reducers/identity/identity.actions';
+import { checkAndUpdateAll, checkAndUpdateChainInfo } from '../../redux/reducers/identity/identity.actions';
 import { setExternalAction, setNavigationPath } from '../../redux/reducers/navigation/navigation.actions';
 import { setOriginApp } from '../../redux/reducers/origin/origin.actions';
 import { setRpcLoginConsentRequest } from '../../redux/reducers/rpc/rpc.actions';
@@ -24,6 +24,7 @@ import {
 import { getIdentity } from '../../rpc/calls/getIdentity';
 import { getSignatureInfo } from '../../rpc/calls/getSignatureInfo';
 import { getBlock } from '../../rpc/calls/getBlock';
+import { getCurrency } from '../../rpc/calls/getCurrency';
 
 class LoginConsent extends React.Component {
   constructor(props) {
@@ -36,6 +37,7 @@ class LoginConsent extends React.Component {
     this.completeLoginConsent = this.completeLoginConsent.bind(this)
     this.getRequestResult = this.getRequestResult.bind(this)
     this.canLoginOrGiveConsent = this.canLoginOrGiveConsent.bind(this)
+    this.handleRequest = this.handleRequest.bind(this)
     this.checkRequest = this.checkRequest.bind(this)
   }
 
@@ -62,13 +64,43 @@ class LoginConsent extends React.Component {
       lastProps !== this.props &&
       lastProps.loginConsentRequest.request !== this.props.loginConsentRequest.request
     ) {
+      await this.handleRequest();
+    }
+  }
 
-      const { request } = this.props.loginConsentRequest;
+  async handleRequest() {
+    let { request } = this.props.loginConsentRequest;
 
-      const actions = await checkAndUpdateAll(request.chain_id);
+      const mainChain = request.mainChain
+
+      // Check if the main daemon is running.
+      const chainActions = await checkAndUpdateChainInfo(mainChain);
+      chainActions.map((action) => this.props.dispatch(action));
+
+      request.chainTicker = mainChain
+
+      if (!this.canLoginOrGiveConsent()) {
+        this.props.dispatch(setRpcLoginConsentRequest({
+          request: request
+        }));
+        this.props.dispatch(setExternalAction(EXTERNAL_CHAIN_START));
+        this.props.dispatch(setNavigationPath(EXTERNAL_ACTION));
+      }
+
+      // Get information on the system of the request.
+      const currencyInfo = await getCurrency("VRSCTEST", request.system_id)
+
+      request.chainName = currencyInfo.name
+      request.chainTicker = currencyInfo.name.toUpperCase()
+
+      const actions = await checkAndUpdateAll(request.chainTicker);
       actions.map((action) => this.props.dispatch(action));
 
       if (this.canLoginOrGiveConsent()) {
+        this.props.dispatch(setRpcLoginConsentRequest({
+          request: request
+        }));
+
         await this.checkRequest(request)
 
         this.props.dispatch(setNavigationPath(CONSENT_TO_SCOPE));
@@ -76,7 +108,6 @@ class LoginConsent extends React.Component {
         this.props.dispatch(setExternalAction(EXTERNAL_CHAIN_START));
         this.props.dispatch(setNavigationPath(EXTERNAL_ACTION));
       }
-    }
   }
 
   // Checks request for signature authenticity, and other things that would immediately disqualify
@@ -93,7 +124,7 @@ class LoginConsent extends React.Component {
       }
       
       // Check request signature
-      const verificatonCheck = await verifyRequest(request.toJson());
+      const verificatonCheck = await verifyRequest(req);
 
       if (!verificatonCheck.verified) {
         throw new Error(verificatonCheck.message)
@@ -115,12 +146,12 @@ class LoginConsent extends React.Component {
       }
 
       // Get the signing identity for displaying later.
-      const signedBy = await getIdentity(req.chain_id, request.signing_id)
+      const signedBy = await getIdentity(req.chainTicker, request.signing_id)
       req.signedBy = signedBy;
 
       // Get information on the signature for displaying later.
-      const sigInfo = await getSignatureInfo(req.chain_id, request.system_id, request.signature.signature, signedBy.identity.identityaddress)
-      const sigBlockInfo = await getBlock(req.chain_id, sigInfo.height.toString())
+      const sigInfo = await getSignatureInfo(req.chainTicker, request.system_id, request.signature.signature, signedBy.identity.identityaddress)
+      const sigBlockInfo = await getBlock(req.chainTicker, sigInfo.height.toString())
 
       req.sigBlockInfo = sigBlockInfo
       this.props.dispatch(setRpcLoginConsentRequest({

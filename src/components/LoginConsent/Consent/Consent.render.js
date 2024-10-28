@@ -42,7 +42,7 @@ export const ConsentRender = function () {
         </div>
 
           <RequestCard
-            chainId={request.chain_id}
+            chainName={request.chainName}
             signedBy={signedBy}
             displayName={this.displayName}
             time={time}

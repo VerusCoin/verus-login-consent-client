@@ -27,7 +27,7 @@ class Login extends React.Component {
   tryLogin() {
     this.setState({ loading: true }, async () => {
       const { request } = this.props.loginConsentRequest
-      const userActions = await checkAndUpdateIdentities(request.chain_id)
+      const userActions = await checkAndUpdateIdentities(request.chainTicker)
       userActions.map(action => this.props.dispatch(action))
 
       if (this.props.canLoginOrGiveConsent()) {
@@ -45,7 +45,7 @@ class Login extends React.Component {
             })
           });
   
-          response.chain_id = request.chain_id
+          response.chainTicker = request.chainTicker
           
           const sigRes = await signResponse(response);
           

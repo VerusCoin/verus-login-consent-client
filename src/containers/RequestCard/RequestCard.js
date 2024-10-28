@@ -26,7 +26,7 @@ function RequestIdentityItem({field, value}) {
 }
 
 export function RequestCard(props) {
-  const chainId = props.chainId
+  const chainName = props.chainName
   const signedBy = props.signedBy
   const displayName = props.displayName
   const time = props.time
@@ -57,7 +57,7 @@ export function RequestCard(props) {
           <List component="div" dense disablePadding>
             <RequestIdentityItem
               field={"Name"}
-              value={displayName}
+              value={signedBy.identity.name}
             >
             </RequestIdentityItem>
             <RequestIdentityItem
@@ -82,7 +82,7 @@ export function RequestCard(props) {
             </RequestIdentityItem>
             <RequestIdentityItem
               field={"System"}
-              value={chainId}
+              value={chainName}
             >
             </RequestIdentityItem>
             <RequestIdentityItem
@@ -100,7 +100,7 @@ export function RequestCard(props) {
 
         <ListItem divider>
           <ListItemText primary="System name" disableTypography sx={{ fontWeight: 'bold' }}/>
-          <ListItemText primary={chainId} disableTypography sx={{textAlign:'right'}}/>
+          <ListItemText primary={chainName} disableTypography sx={{textAlign:'right'}}/>
         </ListItem>
 
         <ListItem>
