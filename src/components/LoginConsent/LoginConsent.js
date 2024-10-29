@@ -85,10 +85,11 @@ class LoginConsent extends React.Component {
         }));
         this.props.dispatch(setExternalAction(EXTERNAL_CHAIN_START));
         this.props.dispatch(setNavigationPath(EXTERNAL_ACTION));
+        return;
       }
 
       // Get information on the system of the request.
-      const currencyInfo = await getCurrency("VRSCTEST", request.system_id)
+      const currencyInfo = await getCurrency(mainChain, request.system_id)
 
       request.chainName = currencyInfo.name
       request.chainTicker = currencyInfo.name.toUpperCase()

@@ -2,7 +2,7 @@ import { DEVMODE, MOCK_IPC } from "../env"
 import { RPC_PASSWORD, RPC_PORT } from "../__tests__/mocks"
 import { setRpcLoginConsentRequest, setRpcExpiryMargin, setRpcPassword, setRpcPort, setRpcPostEncryption, setRpcWindowId } from "../redux/reducers/rpc/rpc.actions"
 import store from "../redux/store"
-import { IPC_LOGIN_CONSENT_REQUEST_METHOD, IPC_INIT_MESSAGE, IPC_ORIGIN_DEV, IPC_ORIGIN_PRODUCTION, IPC_PUSH_MESSAGE } from "../utils/constants"
+import { IPC_LOGIN_CONSENT_REQUEST_METHOD, IPC_INIT_MESSAGE, IPC_ORIGIN_DEV, IPC_ORIGIN_PRODUCTION, IPC_PUSH_MESSAGE, IPC_ORIGIN_DEV_LOCALHOST } from "../utils/constants"
 import { setOriginAppId, setOriginAppBuiltin } from "../redux/reducers/origin/origin.actions"
 import { setError } from "../redux/reducers/error/error.actions"
 
@@ -11,7 +11,9 @@ export const handleIpc = async (event) => {
     if (
       typeof event.data === "string" &&
       ((!DEVMODE && event.origin === IPC_ORIGIN_PRODUCTION) ||
-        (DEVMODE && event.origin === IPC_ORIGIN_DEV))
+        (DEVMODE && event.origin === IPC_ORIGIN_DEV || 
+        (DEVMODE && event.origin === IPC_ORIGIN_DEV_LOCALHOST)
+      ))
     ) {
       const data = JSON.parse(event.data);
 
