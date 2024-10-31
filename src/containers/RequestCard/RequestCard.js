@@ -14,7 +14,7 @@ import { unixToDate } from '../../utils/math';
 // the dropdown section of the request.
 function RequestIdentityItem({field, value}) {
   return (
-    <ListItem divider sx={{pl:4}}>
+    <ListItem divider sx={{pl:4, pr:4}}>
       <ListItemText primary={field} disableTypography/>
       <ListItemText
         primary={value}
@@ -101,12 +101,12 @@ export function RequestCard(props) {
         </Collapse>
 
         <ListItem divider>
-          <ListItemText primary="Permissions requested" disableTypography sx={{ fontWeight: 'bold' }}/>
+          <ListItemText primary="Permissions requested" disableTypography sx={{ fontWeight: 'bold' , pr:4}}/>
           <ListItemText primary={permissions} disableTypography sx={{textAlign:'right'}}/>
         </ListItem>
 
         <ListItem divider>
-          <ListItemText primary="System name" disableTypography sx={{ fontWeight: 'bold' }}/>
+          <ListItemText primary="System name" disableTypography sx={{ fontWeight: 'bold', pr:4}}/>
           <ListItemText primary={systemIdentityDescriptor} disableTypography sx={{textAlign:'right'}}/>
         </ListItem>
 
