@@ -27,11 +27,18 @@ function RequestIdentityItem({field, value}) {
 
 export function RequestCard(props) {
   const chainName = props.chainName
+  const systemId = props.systemId
+  const revocationIdentity = props.revocationIdentity
+  const recoveryIdentity = props.recoveryIdentity
   const signedBy = props.signedBy
   const displayName = props.displayName
   const time = props.time
   const permissions = props.permissions
   const height = props.height
+
+  const systemIdentityDescriptor = `${chainName} (${systemId})`
+  const revocationIdentityDescriptor = `${revocationIdentity.friendlyname} (${revocationIdentity.identity.identityaddress})`
+  const recoveryIdentityDescriptor = `${recoveryIdentity.friendlyname} (${recoveryIdentity.identity.identityaddress})`
 
   const [openIdentity, setOpenIdentity] = React.useState(false);
 
@@ -72,17 +79,17 @@ export function RequestCard(props) {
             </RequestIdentityItem>
             <RequestIdentityItem
               field={"Revocation Authority"}
-              value={signedBy.identity.revocationauthority}
+              value={revocationIdentityDescriptor}
             >
             </RequestIdentityItem>
             <RequestIdentityItem
               field={"Recovery Authority"}
-              value={signedBy.identity.recoveryauthority}
+              value={recoveryIdentityDescriptor}
             >
             </RequestIdentityItem>
             <RequestIdentityItem
               field={"System"}
-              value={chainName}
+              value={systemIdentityDescriptor}
             >
             </RequestIdentityItem>
             <RequestIdentityItem
@@ -100,7 +107,7 @@ export function RequestCard(props) {
 
         <ListItem divider>
           <ListItemText primary="System name" disableTypography sx={{ fontWeight: 'bold' }}/>
-          <ListItemText primary={chainName} disableTypography sx={{textAlign:'right'}}/>
+          <ListItemText primary={systemIdentityDescriptor} disableTypography sx={{textAlign:'right'}}/>
         </ListItem>
 
         <ListItem>

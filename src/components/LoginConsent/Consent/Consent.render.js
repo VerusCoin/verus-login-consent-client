@@ -7,7 +7,7 @@ export const ConsentRender = function () {
   const { loading } = this.state
   const { loginConsentRequest } = this.props
   const { request } = loginConsentRequest
-  const { sigBlockInfo, signedBy } = request
+  const { sigBlockInfo, signedBy, signingRevocationIdentity, signingRecoveryIdentity } = request
   const { time } = sigBlockInfo
 
   return (
@@ -43,7 +43,10 @@ export const ConsentRender = function () {
 
           <RequestCard
             chainName={request.chainName}
+            systemId={request.system_id}
             signedBy={signedBy}
+            revocationIdentity={signingRevocationIdentity}
+            recoveryIdentity={signingRecoveryIdentity}
             displayName={this.displayName}
             time={time}
             permissions={this.permissionsText}

@@ -71,13 +71,13 @@ class LoginConsent extends React.Component {
   async handleRequest() {
     let { request } = this.props.loginConsentRequest;
 
-      const mainChain = request.mainChain
+      const mainChain = request.mainChain;
 
       // Check if the main daemon is running.
       const chainActions = await checkAndUpdateChainInfo(mainChain);
       chainActions.map((action) => this.props.dispatch(action));
 
-      request.chainTicker = mainChain
+      request.chainTicker = mainChain;
 
       if (!this.canLoginOrGiveConsent()) {
         this.props.dispatch(setRpcLoginConsentRequest({
@@ -89,10 +89,10 @@ class LoginConsent extends React.Component {
       }
 
       // Get information on the system of the request.
-      const currencyInfo = await getCurrency(mainChain, request.system_id)
+      const currencyInfo = await getCurrency(mainChain, request.system_id);
 
-      request.chainName = currencyInfo.name
-      request.chainTicker = currencyInfo.name.toUpperCase()
+      request.chainName = currencyInfo.name;
+      request.chainTicker = currencyInfo.name.toUpperCase();
 
       const actions = await checkAndUpdateAll(request.chainTicker);
       actions.map((action) => this.props.dispatch(action));
@@ -102,7 +102,7 @@ class LoginConsent extends React.Component {
           request: request
         }));
 
-        await this.checkRequest(request)
+        await this.checkRequest(request);
 
         this.props.dispatch(setNavigationPath(CONSENT_TO_SCOPE));
       } else {
@@ -116,11 +116,11 @@ class LoginConsent extends React.Component {
   async checkRequest(req) {
     try {
       // Typescript sanity check
-      const request = new LoginConsentRequest(req)
+      const request = new LoginConsentRequest(req);
 
       if (request.challenge.context != null) {
         if (Object.keys(request.challenge.context.kv).length !== 0) {
-          throw new Error("Login requests with context are currently unsupported.")
+          throw new Error("Login requests with context are currently unsupported.");
         }
       }
       
@@ -128,7 +128,7 @@ class LoginConsent extends React.Component {
       const verificatonCheck = await verifyRequest(req);
 
       if (!verificatonCheck.verified) {
-        throw new Error(verificatonCheck.message)
+        throw new Error(verificatonCheck.message);
       }
 
       for (const requestedPermission of request.challenge.requested_access) {
@@ -147,14 +147,21 @@ class LoginConsent extends React.Component {
       }
 
       // Get the signing identity for displaying later.
-      const signedBy = await getIdentity(req.chainTicker, request.signing_id)
+      const signedBy = await getIdentity(req.chainTicker, request.signing_id);
       req.signedBy = signedBy;
 
       // Get information on the signature for displaying later.
-      const sigInfo = await getSignatureInfo(req.chainTicker, request.system_id, request.signature.signature, signedBy.identity.identityaddress)
-      const sigBlockInfo = await getBlock(req.chainTicker, sigInfo.height.toString())
+      const sigInfo = await getSignatureInfo(req.chainTicker, request.system_id, request.signature.signature, signedBy.identity.identityaddress);
+      const sigBlockInfo = await getBlock(req.chainTicker, sigInfo.height.toString());
+      req.sigBlockInfo = sigBlockInfo;
 
-      req.sigBlockInfo = sigBlockInfo
+      // Get the identities of the revocation and recovery i-addresses to display for anti-phishing.
+      const signingRevocationIdentity  = await getIdentity(req.chainTicker, signedBy.identity.revocationauthority);
+      req.signingRevocationIdentity = signingRevocationIdentity;
+
+      const signingRecoveryIdentity = await getIdentity(req.chainTicker, signedBy.identity.recoveryauthority);
+      req.signingRecoveryIdentity = signingRecoveryIdentity;
+
       this.props.dispatch(setRpcLoginConsentRequest({
         request: req
       }));
