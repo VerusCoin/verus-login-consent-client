@@ -10,7 +10,7 @@
     "@testing-library/jest-dom": "5.11.4",
     "@testing-library/react": "11.1.0",
     "@testing-library/user-event": "12.1.10",
-    "base64url": "https://github.com/michaeltout/base64url.git",
+    "base64url": "https://github.com/VerusCoin/base64url.git",
     "bignumber.js": "^9.1.2",
     "blake2b": "https://github.com/VerusCoin/blake2b.git",
     "crypto-js": "4.2.0",
