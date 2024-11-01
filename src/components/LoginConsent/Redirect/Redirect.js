@@ -20,7 +20,7 @@ class Redirect extends React.Component {
     this.redirectinfo = this.redirects ? this.redirects[0] : null;
     this.extraInfo = '';
 
-    if (this.redirectinfo.vdxfkey == LOGIN_CONSENT_REDIRECT_VDXF_KEY.vdxfid) {
+    if (this.redirectinfo.vdxfkey === LOGIN_CONSENT_REDIRECT_VDXF_KEY.vdxfid) {
       const url = new URL(this.redirectinfo.uri);
       this.extraInfo = ` and return to ${url.protocol}//${url.host}`
     }
