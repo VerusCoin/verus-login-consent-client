@@ -36,6 +36,7 @@ export function RequestCard(props) {
   const permissions = props.permissions
   const height = props.height
 
+  const requestedByDescriptor = `${displayName}@ (${signedBy.identity.identityaddress})`
   const systemIdentityDescriptor = `${chainName} (${systemId})`
   const revocationIdentityDescriptor = `${revocationIdentity.friendlyname} (${revocationIdentity.identity.identityaddress})`
   const recoveryIdentityDescriptor = `${recoveryIdentity.friendlyname} (${recoveryIdentity.identity.identityaddress})`
@@ -56,8 +57,8 @@ export function RequestCard(props) {
       }}> 
       <List>
         <ListItemButton divider onClick={handleIdentityClick}>
-          <ListItemText primary="Requested by" disableTypography sx={{ fontWeight: 'bold' }}/>
-          <ListItemText primary={displayName + "@"} disableTypography sx={{textAlign:'right'}}/>
+          <ListItemText primary="Requested by" disableTypography sx={{ fontWeight: 'bold', pr:4}}/>
+          <ListItemText primary={requestedByDescriptor} disableTypography sx={{textAlign:'right'}}/>
           {openIdentity ? <ExpandLess /> : <ExpandMore />}
         </ListItemButton>
         <Collapse in={openIdentity} timeout="auto" unmountOnExit>
@@ -111,7 +112,7 @@ export function RequestCard(props) {
         </ListItem>
 
         <ListItem>
-          <ListItemText primary="Signed on" disableTypography sx={{ fontWeight: 'bold' }}/>
+          <ListItemText primary="Signed on" disableTypography sx={{ fontWeight: 'bold', pr:4}}/>
           <ListItemText primary={unixToDate(time)} disableTypography sx={{textAlign:'right'}}/>
         </ListItem>
       </List>
