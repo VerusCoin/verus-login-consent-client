@@ -2,9 +2,13 @@ import './App.css';
 import LoginConsent from './components/LoginConsent/LoginConsent';
 import { MOCK_IPC } from './env';
 import { handleIpc } from './ipc/handlers';
-import { SIMULATED_IPC_COIN_REQUEST, SIMULATED_IPC_INIT } from "./__tests__/mocks";
+import { SIMULATED_IPC_COIN_REQUEST, SIMULATED_IPC_INIT, SIMULATED_IPC_LOGIN_CONSENT_REQUEST } from "./__tests__/mocks";
 
 if (MOCK_IPC) {
+  setTimeout(() => {
+    console.log("Sending ipc login consent request")
+    handleIpc(SIMULATED_IPC_LOGIN_CONSENT_REQUEST)
+  }, 5000)
   setTimeout(() => {
     console.log("Sending ipc init")
     handleIpc(SIMULATED_IPC_COIN_REQUEST)

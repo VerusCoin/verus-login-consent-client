@@ -4,7 +4,7 @@ import { setNavigationPath } from '../../../redux/reducers/navigation/navigation
 import { 
   ExternalActionRender
 } from './ExternalAction.render';
-import { EXTERNAL_ACTION, EXTERNAL_CHAIN_START, SELECT_LOGIN_ID } from '../../../utils/constants'
+import { CONSENT_TO_SCOPE, EXTERNAL_ACTION, EXTERNAL_CHAIN_START, SELECT_LOGIN_ID } from '../../../utils/constants'
 import { checkAndUpdateAll } from '../../../redux/reducers/identity/identity.actions';
 import { focusVerusDesktop } from '../../../rpc/calls/focus';
 import { SET_API_ERROR } from '../../../redux/reducers/error/error.types';
@@ -22,9 +22,9 @@ class ExternalAction extends React.Component {
 
     this.actionTypes = {
       [EXTERNAL_CHAIN_START]: () => ({
-        desc: `You need to launch ${this.props.loginConsentRequest.request.chain_id} in native mode and be fully synced to the blockchain in order to login with VerusID. When you are, press 'continue'.`,
+        desc: `You need to launch ${this.props.loginConsentRequest.request.chainTicker} in native mode and be fully synced to the blockchain in order to login with VerusID. When you are, press 'continue'.`,
         check: async () => {
-          const userActions = await checkAndUpdateAll(this.props.loginConsentRequest.request.chain_id);
+          const userActions = await checkAndUpdateAll(this.props.loginConsentRequest.request.chainTicker);
           userActions.map((action) => props.dispatch(action));
 
           return userActions.some((x) => x.type === SET_API_ERROR)
@@ -33,12 +33,16 @@ class ExternalAction extends React.Component {
         },
       }),
       [EXTERNAL_CHAIN_START]: () => ({
-        desc: `Launch ${this.props.loginConsentRequest.request.chain_id} in native mode, and ensure that you have at least one identity that you're able to sign with to login with VerusID. Then press 'continue'.`,
+        desc: `Launch ${this.props.loginConsentRequest.request.chainTicker} in native mode, and ensure that you have at least one identity that you're able to sign with to login with VerusID. Then press 'continue'.`,
         check: async () => {
-          const userActions = await checkAndUpdateAll(this.props.loginConsentRequest.request.chain_id);
-          userActions.map((action) => props.dispatch(action));
+          // Process the request again if any of the required daemons were not running when first trying.
+          await this.props.handleRequest();
 
-          return this.props.identities.length > 0 ? SELECT_LOGIN_ID : EXTERNAL_ACTION;
+          if (this.props.identities.length > 0) {
+            return CONSENT_TO_SCOPE
+          }
+
+          return EXTERNAL_ACTION;
         },
       }),
     };
@@ -57,9 +61,8 @@ class ExternalAction extends React.Component {
   tryContinue() {
     this.setState({ loading: true }, async () => {
       if (this.actionTypes[this.props.externalAction]) {  
-        this.props.dispatch(setNavigationPath(await ((this.actionTypes[this.props.externalAction])()).check()))
-
         this.setState({ loading: false })
+        this.props.dispatch(setNavigationPath(await ((this.actionTypes[this.props.externalAction])()).check()))
       }
     })
   }

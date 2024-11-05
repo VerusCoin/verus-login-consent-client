@@ -1,16 +1,19 @@
 import { DEVMODE, MOCK_IPC } from "../env"
-import { RPC_PASSWORD } from "../__tests__/mocks"
+import { RPC_PASSWORD, RPC_PORT } from "../__tests__/mocks"
 import { setRpcLoginConsentRequest, setRpcExpiryMargin, setRpcPassword, setRpcPort, setRpcPostEncryption, setRpcWindowId } from "../redux/reducers/rpc/rpc.actions"
 import store from "../redux/store"
-import { IPC_LOGIN_CONSENT_REQUEST_METHOD, IPC_INIT_MESSAGE, IPC_ORIGIN_DEV, IPC_ORIGIN_PRODUCTION, IPC_PUSH_MESSAGE } from "../utils/constants"
+import { IPC_LOGIN_CONSENT_REQUEST_METHOD, IPC_INIT_MESSAGE, IPC_ORIGIN_DEV, IPC_ORIGIN_PRODUCTION, IPC_PUSH_MESSAGE, IPC_ORIGIN_DEV_LOCALHOST } from "../utils/constants"
 import { setOriginAppId, setOriginAppBuiltin } from "../redux/reducers/origin/origin.actions"
+import { setError } from "../redux/reducers/error/error.actions"
 
 export const handleIpc = async (event) => {
   try {
     if (
       typeof event.data === "string" &&
       ((!DEVMODE && event.origin === IPC_ORIGIN_PRODUCTION) ||
-        (DEVMODE && event.origin === IPC_ORIGIN_DEV))
+        (DEVMODE && event.origin === IPC_ORIGIN_DEV || 
+        (DEVMODE && event.origin === IPC_ORIGIN_DEV_LOCALHOST)
+      ))
     ) {
       const data = JSON.parse(event.data);
 
@@ -32,6 +35,25 @@ export const handleIpc = async (event) => {
         data.type === IPC_PUSH_MESSAGE &&
         data.method === IPC_LOGIN_CONSENT_REQUEST_METHOD
       ) {
+        try {
+          if (MOCK_IPC) {
+            store.dispatch(setRpcExpiryMargin(60000));
+            store.dispatch(setRpcPort(RPC_PORT));
+            store.dispatch(setRpcPostEncryption(true));
+            store.dispatch(setRpcWindowId(1));
+            store.dispatch(setRpcPassword(RPC_PASSWORD));
+          }
+          else store.dispatch(setRpcPassword(window.bridge.getSecretSync().BuiltinSecret));
+        } catch (e) {
+          console.error("Error loading api secrets!");
+          console.error(e);
+          throw e;
+        }
+
+        // Add the name of daemon guaranteed to be is running on desktop so 
+        // it can be used to look up other chains.
+        data.data.request.mainChain = data.data.origin_app_info.main_chain_ticker;
+
         store.dispatch(
           setRpcLoginConsentRequest({
             request: data.data.request,
@@ -45,5 +67,6 @@ export const handleIpc = async (event) => {
     }
   } catch(e) {
     console.error(e)
+    store.dispatch(setError(new Error(e.message)));
   }
 }

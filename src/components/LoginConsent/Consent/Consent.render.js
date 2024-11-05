@@ -1,13 +1,14 @@
 import React from "react";
 import Button from '@mui/material/Button';
-import DividedText from "../../../containers/DividedText";
+import { RequestCard } from "../../../containers/RequestCard/RequestCard";
+import { VerusIdLogo } from "../../../images";
 
 export const ConsentRender = function () {
   const { loading } = this.state
   const { loginConsentRequest } = this.props
   const { request } = loginConsentRequest
-  const { signing_id, challenge } = request
-  const { clien } = challenge
+  const { sigBlockInfo, signedBy, signingRevocationIdentity, signingRecoveryIdentity } = request
+  const { time } = sigBlockInfo
 
   return (
     <div
@@ -24,42 +25,34 @@ export const ConsentRender = function () {
           display: "flex",
           padding: 32,
           flexDirection: "column",
+          alignItems: "center",
         }}
       >
+        <img src={VerusIdLogo} width={'55%'} height={'10%'}/>
         <div
           style={{
             width: "100%",
             display: "flex",
-            justifyContent: "flex-start",
-          }}
-        >
-          <div
-            style={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "flex-start",
-              alignItems: "center",
-              flexDirection: "row",
-            }}
-          >
-            <a href="#">{signing_id}</a>
-            &nbsp;{` is requesting permission for the following`}
-          </div>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
             alignItems: "center",
+            padding: 8,
             justifyContent: "center",
-            flex: 1,
           }}
         >
-          <DividedText
-            left={<div style={{ fontWeight: "bold" }}>{this.leftText.join("\n")}</div>}
-            right={<div>{this.rightText.join("\n")}</div>}
-          />
+          {this.displayName + "@"}{` is requesting login with VerusID`}
         </div>
+
+          <RequestCard
+            chainName={request.chainName}
+            systemId={request.system_id}
+            signedBy={signedBy}
+            revocationIdentity={signingRevocationIdentity}
+            recoveryIdentity={signingRecoveryIdentity}
+            displayName={this.displayName}
+            time={time}
+            permissions={this.permissionsText}
+            height={"54vh"}
+          >
+          </RequestCard>
         <div
           style={{
             width: "100%",
@@ -67,6 +60,7 @@ export const ConsentRender = function () {
             flexDirection: "row",
             alignItems: "flex-end",
             justifyContent: "flex-end",
+            marginTop: "auto",
           }}
         >
           <div
@@ -88,12 +82,12 @@ export const ConsentRender = function () {
                 padding: 8,
               }}
             >
-              {"Back"}
+              {"Cancel"}
             </Button>
             <Button
               variant="contained"
               color="primary"
-              disabled={loading || this.props.activeIdentity == null}
+              disabled={loading}
               onClick={() => this.tryLogin()}
               style={{
                 width: 120,

@@ -4,34 +4,25 @@ import { setExternalAction, setNavigationPath } from '../../../redux/reducers/na
 import { 
   ConsentRender
 } from './Consent.render';
-import { EXTERNAL_ACTION, EXTERNAL_CHAIN_START, REDIRECT, SCOPES, SELECT_LOGIN_ID } from '../../../utils/constants'
+import { EXTERNAL_ACTION, EXTERNAL_CHAIN_START, SCOPES, SELECT_LOGIN_ID } from '../../../utils/constants';
 import { checkAndUpdateIdentities } from '../../../redux/reducers/identity/identity.actions';
-import { signResponse } from '../../../rpc/calls/signResponse';
-import { setError } from '../../../redux/reducers/error/error.actions';
-import { LoginConsentDecision, LoginConsentResponse } from 'verus-typescript-primitives';
 
 class Consent extends React.Component {
   constructor(props) {
     super(props);
-    const scope = props.loginConsentRequest.request.challenge.requested_scope
+    const requestedPermissions = props.loginConsentRequest.request.challenge.requested_access;
+    const chainName = props.loginConsentRequest.request.chainName;
+    const signedBy = props.loginConsentRequest.request.signedBy;
+    const friendlyName = signedBy.friendlyname;
+    this.displayName = friendlyName.substring(0, friendlyName.lastIndexOf("." + chainName));
 
-    let leftText = []
-    let rightText = []
+    let permissionsDescriptions = [];
 
-    if (scope != null) {
-      for (const header in SCOPES) {
-        for (const vdxfid in SCOPES[header]) {
-          if (scope.includes(vdxfid)) {
-            const value = SCOPES[header][vdxfid]
-
-            if (rightText.length > 0) {
-              leftText.push('\n')
-            } else {
-              leftText.push(header)
-            }
-  
-            rightText.push(value.description)
-          }
+    if (requestedPermissions != null) {
+      // Match permissions to the possible ids in the scopes.
+      for (const permission of requestedPermissions) {
+        if (SCOPES[permission.vdxfkey]) {
+          permissionsDescriptions.push(SCOPES[permission.vdxfkey].description);
         }
       }
     }
@@ -42,37 +33,17 @@ class Consent extends React.Component {
 
     this.tryLogin = this.tryLogin.bind(this);
     this.cancel = this.cancel.bind(this);
-    this.leftText = leftText;
-    this.rightText = rightText;
+    this.permissionsText = permissionsDescriptions.join(", ");
   }
 
   tryLogin() {
     this.setState({ loading: true }, async () => {
       const { request } = this.props.loginConsentRequest
-      const userActions = await checkAndUpdateIdentities(request.chain_id)
+      const userActions = await checkAndUpdateIdentities(request.chainTicker)
       userActions.map(action => this.props.dispatch(action))
 
       if (this.props.canLoginOrGiveConsent()) {
-        try {
-          const response = new LoginConsentResponse({
-            chain_id: request.chain_id,
-            signing_id: this.props.activeIdentity.identity.identityaddress,
-            decision: new LoginConsentDecision({
-              subject: this.props.activeIdentity.identity.identityaddress,
-              remember: false,
-              remember_for: 0,
-              request: request
-            }),
-          });
-          
-          const sigRes = await signResponse(response);
-          
-          this.props.setRequestResult(sigRes, () => {
-            this.props.dispatch(setNavigationPath(REDIRECT))
-          })
-        } catch(e) {
-          this.props.dispatch(setError(e))
-        }
+        this.props.dispatch(setNavigationPath(SELECT_LOGIN_ID));
       } else {
         this.props.dispatch(setExternalAction(EXTERNAL_CHAIN_START))
         this.props.dispatch(setNavigationPath(EXTERNAL_ACTION));
@@ -81,7 +52,9 @@ class Consent extends React.Component {
   }
 
   cancel() {
-    this.props.dispatch(setNavigationPath(SELECT_LOGIN_ID));
+    this.setState({ loading: true }, async () => {
+      await this.props.completeLoginConsent()
+    })
   }
 
   render() {

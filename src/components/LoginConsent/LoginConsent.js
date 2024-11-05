@@ -1,11 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { LoginConsentRequest } from 'verus-typescript-primitives';
-import { IDENTITY_VIEW } from 'verus-typescript-primitives/dist/vdxf/scopes';
 import { setError } from '../../redux/reducers/error/error.actions';
-import { checkAndUpdateAll } from '../../redux/reducers/identity/identity.actions';
+import { checkAndUpdateAll, checkAndUpdateChainInfo } from '../../redux/reducers/identity/identity.actions';
 import { setExternalAction, setNavigationPath } from '../../redux/reducers/navigation/navigation.actions';
 import { setOriginApp } from '../../redux/reducers/origin/origin.actions';
+import { setRpcLoginConsentRequest } from '../../redux/reducers/rpc/rpc.actions';
 import { closePlugin } from '../../rpc/calls/closePlugin';
 import { getPlugin } from '../../rpc/calls/getPlugin';
 import { verifyRequest } from '../../rpc/calls/verifyRequest';
@@ -14,13 +14,17 @@ import {
   API_GET_IDENTITIES,
   EXTERNAL_ACTION,
   EXTERNAL_CHAIN_START,
-  SELECT_LOGIN_ID,
+  CONSENT_TO_SCOPE,
   SUPPORTED_SCOPES,
   VERUS_LOGIN_CONSENT_UI,
 } from "../../utils/constants";
 import { 
   LoginConsentRender
 } from './LoginConsent.render';
+import { getIdentity } from '../../rpc/calls/getIdentity';
+import { getSignatureInfo } from '../../rpc/calls/getSignatureInfo';
+import { getBlock } from '../../rpc/calls/getBlock';
+import { getCurrency } from '../../rpc/calls/getCurrency';
 
 class LoginConsent extends React.Component {
   constructor(props) {
@@ -33,6 +37,7 @@ class LoginConsent extends React.Component {
     this.completeLoginConsent = this.completeLoginConsent.bind(this)
     this.getRequestResult = this.getRequestResult.bind(this)
     this.canLoginOrGiveConsent = this.canLoginOrGiveConsent.bind(this)
+    this.handleRequest = this.handleRequest.bind(this)
     this.checkRequest = this.checkRequest.bind(this)
   }
 
@@ -59,20 +64,51 @@ class LoginConsent extends React.Component {
       lastProps !== this.props &&
       lastProps.loginConsentRequest.request !== this.props.loginConsentRequest.request
     ) {
-      const { request } = this.props.loginConsentRequest;
+      await this.handleRequest();
+    }
+  }
 
-      const actions = await checkAndUpdateAll(request.chain_id);
+  async handleRequest() {
+    let { request } = this.props.loginConsentRequest;
+
+      const mainChain = request.mainChain;
+
+      // Check if the main daemon is running.
+      const chainActions = await checkAndUpdateChainInfo(mainChain);
+      chainActions.map((action) => this.props.dispatch(action));
+
+      request.chainTicker = mainChain;
+
+      if (!this.canLoginOrGiveConsent()) {
+        this.props.dispatch(setRpcLoginConsentRequest({
+          request: request
+        }));
+        this.props.dispatch(setExternalAction(EXTERNAL_CHAIN_START));
+        this.props.dispatch(setNavigationPath(EXTERNAL_ACTION));
+        return;
+      }
+
+      // Get information on the system of the request.
+      const currencyInfo = await getCurrency(mainChain, request.system_id);
+
+      request.chainName = currencyInfo.name;
+      request.chainTicker = currencyInfo.name.toUpperCase();
+
+      const actions = await checkAndUpdateAll(request.chainTicker);
       actions.map((action) => this.props.dispatch(action));
 
       if (this.canLoginOrGiveConsent()) {
-        await this.checkRequest(request)
+        this.props.dispatch(setRpcLoginConsentRequest({
+          request: request
+        }));
 
-        this.props.dispatch(setNavigationPath(SELECT_LOGIN_ID));
+        await this.checkRequest(request);
+
+        this.props.dispatch(setNavigationPath(CONSENT_TO_SCOPE));
       } else {
         this.props.dispatch(setExternalAction(EXTERNAL_CHAIN_START));
         this.props.dispatch(setNavigationPath(EXTERNAL_ACTION));
       }
-    }
   }
 
   // Checks request for signature authenticity, and other things that would immediately disqualify
@@ -80,25 +116,56 @@ class LoginConsent extends React.Component {
   async checkRequest(req) {
     try {
       // Typescript sanity check
-      const request = new LoginConsentRequest(req)
+      const request = new LoginConsentRequest(req);
 
-      // Check request signature
-      const verificatonCheck = await verifyRequest(request.stringable());
-
-      if (!verificatonCheck.verified) {
-        throw new Error(verificatonCheck.message)
-      }
-
-      // Ensure request has required scope (can see ID)
-      if (request.challenge.requested_scope == null || !request.challenge.requested_scope.includes(IDENTITY_VIEW.vdxfid)) {
-        throw new Error("Service is not asking permission to view your ID")
-      }
-
-      for (const scope of request.challenge.requested_scope) {
-        if (!SUPPORTED_SCOPES.includes(scope)) {
-          throw new Error("Service is requesting unsupported permission")
+      if (request.challenge.context != null) {
+        if (Object.keys(request.challenge.context.kv).length !== 0) {
+          throw new Error("Login requests with context are currently unsupported.");
         }
       }
+      
+      // Check request signature
+      const verificatonCheck = await verifyRequest(req);
+
+      if (!verificatonCheck.verified) {
+        throw new Error(verificatonCheck.message);
+      }
+
+      for (const requestedPermission of request.challenge.requested_access) {
+        if (!SUPPORTED_SCOPES.includes(requestedPermission.vdxfkey)) {
+          throw new Error(
+            'Unrecognized requested permission ' +
+              requestedPermission.vdxfkey,
+          );
+        }
+      }
+
+      if (request.challenge.requested_access.length == 0) {
+        throw new Error(
+          'No permissions being requested in loginconsent request.',
+        );
+      }
+
+      // Get the signing identity for displaying later.
+      const signedBy = await getIdentity(req.chainTicker, request.signing_id);
+      req.signedBy = signedBy;
+
+      // Get information on the signature for displaying later.
+      const sigInfo = await getSignatureInfo(req.chainTicker, request.system_id, request.signature.signature, signedBy.identity.identityaddress);
+      const sigBlockInfo = await getBlock(req.chainTicker, sigInfo.height.toString());
+      req.sigBlockInfo = sigBlockInfo;
+
+      // Get the identities of the revocation and recovery i-addresses to display for anti-phishing.
+      const signingRevocationIdentity  = await getIdentity(req.chainTicker, signedBy.identity.revocationauthority);
+      req.signingRevocationIdentity = signingRevocationIdentity;
+
+      const signingRecoveryIdentity = await getIdentity(req.chainTicker, signedBy.identity.recoveryauthority);
+      req.signingRecoveryIdentity = signingRecoveryIdentity;
+
+      this.props.dispatch(setRpcLoginConsentRequest({
+        request: req
+      }));
+
     } catch(e) {
       console.error(e)
       this.props.dispatch(setError(new Error(e.message)));

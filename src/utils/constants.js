@@ -20,7 +20,11 @@ export const API_CLOSE_PLUGIN = 'plugin/close'
 export const API_ACTIVATE_COIN = 'coins/activate'
 export const API_CHECK_ZCASH_PARAMS = 'zcashparamsexist'
 export const API_DL_ZCASH_PARAMS = 'zcparamsdl'
+export const API_GET_BLOCK = 'get_block'
+export const API_GET_CURRENCY = 'get_currency'
 export const API_GET_IDENTITIES = 'get_identities'
+export const API_GET_IDENTITY = 'get_identity'
+export const API_GET_SIGNATURE_INFO = 'get_signature_info'
 export const API_VERIFY_LOGIN_REQUEST = 'verusid/login/verify_request'
 export const API_SIGN_LOGIN_RESPONSE = 'verusid/login/sign_response'
 export const API_GET_CHAIN_INFO = 'get_info'
@@ -41,7 +45,7 @@ export const CONFIGURE_LITE = "CONFIGURE_LITE"
 export const CONFIGURE_NATIVE = "CONFIGURE_NATIVE"
 export const CHAIN_FALLBACK_IMAGE = "CHAIN_FALLBACK_IMAGE"
 
-export const LITE = "LITE"
+export const LITE = "lite"
 export const NATIVE_MINE = "NATIVE_MINE"
 export const NATIVE_RESCAN = "NATIVE_RESCAN"
 export const NATIVE_STAKE = "NATIVE_STAKE"
@@ -81,6 +85,7 @@ export const ADDCOIN_DELAY = 500
 
 // ipc
 export const IPC_ORIGIN_DEV = "http://127.0.0.1:3001"
+export const IPC_ORIGIN_DEV_LOCALHOST = "http://localhost:3001"
 export const IPC_ORIGIN_PRODUCTION = "file://"
 export const IPC_INIT_MESSAGE = 'init'
 export const IPC_PUSH_MESSAGE = 'push'
@@ -105,10 +110,8 @@ export const KOMODO_CONF_NAME = 'komodo'
 
 // Permission Scopes
 export const SCOPES = {
-  ["VerusID"]: {
-    [IDENTITY_VIEW.vdxfid]: {
-      description: "Permission to view the VerusID you login with.",
-    },
+  [IDENTITY_VIEW.vdxfid]: {
+    description: "View your chosen identity",
   },
 };
 export const SUPPORTED_SCOPES = [IDENTITY_VIEW.vdxfid];
