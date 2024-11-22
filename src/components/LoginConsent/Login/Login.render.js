@@ -44,7 +44,8 @@ export const LoginRender = function () {
               padding: 8,
             }}
           >
-            {`Select an Identity`}
+            {`Select an Identity` +
+              (this.canProvision ? " or Request an Identity" : "")}
           </div>
         </div>
         <div

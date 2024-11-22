@@ -8,7 +8,11 @@ import { CONSENT_TO_SCOPE, EXTERNAL_ACTION, EXTERNAL_CHAIN_START, REDIRECT } fro
 import { checkAndUpdateIdentities, setActiveVerusId } from '../../../redux/reducers/identity/identity.actions';
 import { signResponse } from '../../../rpc/calls/signResponse';
 import { setError } from '../../../redux/reducers/error/error.actions';
-import { LoginConsentDecision, LoginConsentResponse } from 'verus-typescript-primitives';
+import { 
+  ID_ADDRESS_VDXF_KEY,
+  LOGIN_CONSENT_ID_PROVISIONING_WEBHOOK_VDXF_KEY,
+  LoginConsentDecision, LoginConsentResponse
+} from 'verus-typescript-primitives';
 import BigNumber from 'bignumber.js';
 
 class Login extends React.Component {
@@ -19,6 +23,29 @@ class Login extends React.Component {
       loading: false
     }
 
+    // Check to see if provisioning is an option.
+    const { request } = this.props.loginConsentRequest;
+
+    // See if the webhook exists.
+    let canProvision = request.challenge.provisioning_info && request.challenge.provisioning_info.some(x => {
+      return (
+        x.vdxfkey === LOGIN_CONSENT_ID_PROVISIONING_WEBHOOK_VDXF_KEY.vdxfid
+      );
+    });
+
+    // Provisioning is not an option if the subject is specified to be one of the identities that the user owns.
+    if (this.props.identities.length > 0) {
+      const identitySubjects = 
+        request.challenge.subject.filter(item => item.vdxfkey === ID_ADDRESS_VDXF_KEY.vdxfid).map(id => id.data);
+
+      const identitySubjectMatches = this.props.identities.filter(id => identitySubjects.includes(id.identity.identityaddress));
+
+      if (identitySubjectMatches.length > 0) {
+        canProvision = false;
+      }
+    }
+
+    this.canProvision = canProvision;
     this.tryLogin = this.tryLogin.bind(this);
     this.selectId = this.selectId.bind(this);
     this.cancel = this.cancel.bind(this);
