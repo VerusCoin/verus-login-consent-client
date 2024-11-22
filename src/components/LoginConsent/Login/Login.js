@@ -4,7 +4,13 @@ import { setExternalAction, setNavigationPath } from '../../../redux/reducers/na
 import { 
   LoginRender
 } from './Login.render';
-import { CONSENT_TO_SCOPE, EXTERNAL_ACTION, EXTERNAL_CHAIN_START, REDIRECT } from '../../../utils/constants'
+import {
+  CONSENT_TO_SCOPE,
+  EXTERNAL_ACTION,
+  EXTERNAL_CHAIN_START,
+  REDIRECT,
+  PROVISIONING_FORM
+} from '../../../utils/constants'
 import { checkAndUpdateIdentities, setActiveVerusId } from '../../../redux/reducers/identity/identity.actions';
 import { signResponse } from '../../../rpc/calls/signResponse';
 import { setError } from '../../../redux/reducers/error/error.actions';
@@ -47,6 +53,7 @@ class Login extends React.Component {
 
     this.canProvision = canProvision;
     this.tryLogin = this.tryLogin.bind(this);
+    this.tryProvision = this.tryProvision.bind(this);
     this.selectId = this.selectId.bind(this);
     this.cancel = this.cancel.bind(this);
   }
@@ -87,6 +94,10 @@ class Login extends React.Component {
         this.props.dispatch(setNavigationPath(EXTERNAL_ACTION));
       }
     })
+  }
+
+  tryProvision() {
+    this.props.dispatch(setNavigationPath(PROVISIONING_FORM));
   }
 
   cancel() {

@@ -1,11 +1,8 @@
 import React from "react";
 import Button from '@mui/material/Button';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import { VerusIdLogo } from "../../../images";
+import { VerusIdLogo } from "../../../../images";
 
-export const LoginRender = function () {
+export const ProvisionIdentityFormRender = function () {
   const { loading } = this.state
 
   return (
@@ -44,10 +41,10 @@ export const LoginRender = function () {
               padding: 8,
             }}
           >
-            {`Select an Identity` +
-              (this.canProvision ? " or Request an Identity" : "")}
+            {`Provisioning Form`}
           </div>
         </div>
+
         <div
           style={{
             width: "100%",
@@ -58,61 +55,8 @@ export const LoginRender = function () {
             flex: 1,
             paddingTop: 2,
           }}
-        >
-          <FormControl style={{ maxWidth: 560, flex: 1 }}>
-            <Select
-              value={
-                this.props.activeIdentity == null
-                  ? ""
-                  : this.props.activeIdentity.identity.identityaddress
-              }
-              displayEmpty
-              inputProps={{ "aria-label": "Select a VerusID" }}
-              style={{
-                textAlign: "start",
-                paddingTop: 2,
-              }}
-              onChange={(e) => {
-                return this.selectId(e.target.value);
-              }}
-            >
-              <MenuItem value="">
-                <em>Select a VerusID</em>
-              </MenuItem>
-              {this.props.identities.map((id, index) => {
-                return (
-                  <MenuItem
-                    key={index}
-                    value={id.identity.identityaddress}
-                  >{`${id.identity.name}@`}</MenuItem>
-                );
-              })}
-            </Select>
-          </FormControl>
-        </div>
-        <div
-           style={{
-            width: "100%",
-            display: "flex",
-            flexDirection: "column-reverse",
-            alignItems: "center",
-            justifyContent: "flex-end",
-            flex: 1,
-          }}
-        >
-          {this.canProvision ? <Button
-            variant="contained"
-            color="primary"
-            disabled={loading}
-            onClick={() => this.tryProvision()}
-            style={{
-              width: 240,
-              padding: 8,
-            }}
-          >
-            {"Request a VerusID"}
-          </Button> : {}}
-        </div>
+        ></div>
+
         <div
           style={{
             width: "100%",
@@ -146,8 +90,8 @@ export const LoginRender = function () {
             <Button
               variant="contained"
               color="primary"
-              disabled={loading || this.props.activeIdentity == null}
-              onClick={() => this.tryLogin()}
+              disabled={loading}
+              onClick={() => this.submitData()}
               style={{
                 width: 120,
                 padding: 8,
@@ -161,4 +105,3 @@ export const LoginRender = function () {
     </div>
   );
 };
-
