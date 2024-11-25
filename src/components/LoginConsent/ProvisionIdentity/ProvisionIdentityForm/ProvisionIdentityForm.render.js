@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState }  from "react";
 import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 import { VerusIdLogo } from "../../../../images";
 
 export const ProvisionIdentityFormRender = function () {
@@ -41,7 +42,7 @@ export const ProvisionIdentityFormRender = function () {
               padding: 8,
             }}
           >
-            {`Provisioning Form`}
+            {`Request VerusID`}
           </div>
         </div>
 
@@ -55,7 +56,31 @@ export const ProvisionIdentityFormRender = function () {
             flex: 1,
             paddingTop: 2,
           }}
-        ></div>
+        >
+          <TextField
+            label="i-Address or VerusID name"
+            sx={{
+              maxWidth: 560,
+              flex: 1,
+              width: "100%",
+              m: 1
+            }}
+            variant="outlined"
+            value={this.state.assignedIdentity}
+            mode="outlined"
+            disabled={this.state.assignedIdentity != null || loading}
+            onChange={event => {
+              const text = event.target.value
+              console.log("text", text);
+              if (this.state.assignedIdentity == null && !text.endsWith("@")) {
+                this.setState({
+                  assignedIdentity: text
+                });
+              }
+            }}
+          >
+          </TextField>
+        </div>
 
         <div
           style={{
