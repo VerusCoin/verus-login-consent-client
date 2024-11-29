@@ -19,7 +19,8 @@ export const getIdentity = async (chainId, id) => {
     if (res.msg !== "success") throw new Error(res.result);
     else return res.result;
   } catch (e) {
-    console.error(e.message);
+    // Don't console log the error since the error can be used to determine if 
+    // an identity already exists when provisioning.
     throw new Error(e.message);
   }
 }

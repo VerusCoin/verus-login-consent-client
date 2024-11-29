@@ -20,6 +20,7 @@ export const API_CLOSE_PLUGIN = 'plugin/close'
 export const API_ACTIVATE_COIN = 'coins/activate'
 export const API_CHECK_ZCASH_PARAMS = 'zcashparamsexist'
 export const API_DL_ZCASH_PARAMS = 'zcparamsdl'
+export const API_GET_ADDRESSES = "get_addresses"
 export const API_GET_BLOCK = 'get_block'
 export const API_GET_CURRENCY = 'get_currency'
 export const API_GET_IDENTITIES = 'get_identities'

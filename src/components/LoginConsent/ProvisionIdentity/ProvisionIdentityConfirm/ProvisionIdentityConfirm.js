@@ -12,6 +12,9 @@ class ProvisionIdentityConfirm extends React.Component {
       loading: false
     }
 
+    console.log(props.loginConsentRequest)
+    console.log(props.provisioningInfo)
+
     this.submitData = this.submitData.bind(this);
     this.cancel = this.cancel.bind(this);
   }
@@ -36,7 +39,8 @@ const mapStateToProps = (state) => {
     loginConsentRequest: state.rpc.loginConsentRequest,
     identities: state.identity.identities,
     activeIdentity: state.identity.activeIdentity,
-    originApp: state.origin.originApp
+    originApp: state.origin.originApp,
+    provisioningInfo: state.provision.provisioningInfo
   };
 };
 
