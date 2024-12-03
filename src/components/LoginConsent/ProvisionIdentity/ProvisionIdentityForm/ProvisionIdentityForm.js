@@ -360,42 +360,4 @@ const ProvisionIdentityForm = (props) => {
   );
 }
 
-const hasProvisioningInfo = (request) => {
-  return request != null && request.challenge.provisioning_info != null;
-}
-
-const updateProvisioningInfoProcessedData = (request) => {
-  if (!hasProvisioningInfo(request)) return;
-
-  const findProvisioningInfo = (key) =>
-    request.challenge.provisioning_info.find(
-      (x) => x.vdxfkey === key.vdxfid
-    );
-
-  const provAddress = findProvisioningInfo(ID_ADDRESS_VDXF_KEY);
-  const provSystemId = findProvisioningInfo(ID_SYSTEMID_VDXF_KEY);
-  const provFqn = findProvisioningInfo(ID_FULLYQUALIFIEDNAME_VDXF_KEY);
-  const provParent = findProvisioningInfo(ID_PARENT_VDXF_KEY);
-  const provWebhook = findProvisioningInfo(LOGIN_CONSENT_ID_PROVISIONING_WEBHOOK_VDXF_KEY);
-
-  return {
-    provAddress: provAddress,
-    provSystemId: provSystemId,
-    provFqn: provFqn,
-    provParent: provParent,
-    provWebhook: provWebhook,
-  };
-};
-
-// TODO: Figure out if this should be different
-const mapStateToProps = (state) => {
-  return {
-    path: state.navigation.path,
-    loginConsentRequest: state.rpc.loginConsentRequest,
-    identities: state.identity.identities,
-    activeIdentity: state.identity.activeIdentity,
-    originApp: state.origin.originApp
-  };
-};
-
 export default ProvisionIdentityForm;
