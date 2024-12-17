@@ -9,23 +9,31 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
-import Box from '@mui/material/Box'
+import Box from '@mui/material/Box';
 import {
-  LOGIN_CONSENT_CONTEXT_VDXF_KEY,
   LOGIN_CONSENT_ID_PROVISIONING_WEBHOOK_VDXF_KEY,
   LoginConsentProvisioningRequest,
   LoginConsentProvisioningChallenge,
-  LoginConsentRequest
+  LoginConsentRequest,
+  fromBase58Check,
+  LoginConsentProvisioningResponse,
+  LOGIN_CONSENT_PROVISIONING_RESULT_STATE_FAILED,
+  LOGIN_CONSENT_PROVISIONING_RESULT_STATE_PENDINGAPPROVAL,
+  LOGIN_CONSENT_PROVISIONING_RESULT_STATE_COMPLETE,
 } from 'verus-typescript-primitives';
 import { getIdentity } from '../../../../rpc/calls/getIdentity';
+import { getVdxfId } from '../../../../rpc/calls/getVdxfId';
+import { signIdProvisioningRequest } from '../../../../rpc/calls/signIdProvisioningRequest';
+import axios from 'axios';
+import { SnackbarAlert } from '../../../../containers/SnackbarAlert';
+import { verifyIdProvisioningResponse } from '../../../../rpc/calls/verifyIdProvisioningResponse';
+import { setProvisioningName, setProvisioningResponse, setRequestedFqn } from '../../../../redux/reducers/provision/provision.actions';
 
-const ProvisionIdentityConfirm = (props) => {
+const ProvisionIdentityConfirm = () => {
   const dispatch = useDispatch();
   const { request } = useSelector((state) => state.rpc.loginConsentRequest);
   const provisioningInfo = useSelector((state) => state.provision.provisioningInfo);
   const identityToProvisionField = useSelector((state) => state.provision.identityToProvisionField);
-
-  console.log(provisioningInfo);
 
   const {
     primaryAddress,
@@ -37,64 +45,118 @@ const ProvisionIdentityConfirm = (props) => {
     friendlyNameMap,
   } = provisioningInfo;
 
-  const displayIdentity = provFqn
-    ? provFqn.data
-    : friendlyNameMap[
-      identityToProvisionField
-      ]
-    ? `${
-        friendlyNameMap[
-          identityToProvisionField
-        ]
-      }@`
-    : identityToProvisionField;
-
-  const displayParent = provParent != null && friendlyNameMap[provParent.data]
-      ? friendlyNameMap[provParent.data]
-      : null;
+  let displayIdentity;
   
-  const displaySystemid = provSystemId != null && friendlyNameMap[provSystemId.data]
-    ? friendlyNameMap[provSystemId.data]
-    : null;
+  if (provFqn) {
+    if (provFqn.data) {
+      displayIdentity = friendlyNameMap[identityToProvisionField];
+    } else {
+      displayIdentity = `${friendlyNameMap[identityToProvisionField]}@`;
+    }
+  } else {
+    displayIdentity = identityToProvisionField;
+  }
+
+  let displayParent;
+
+  if (provParent != null) {
+    if (friendlyNameMap[provParent.data]) {
+      displayParent = friendlyNameMap[provParent.data];
+    } else {
+      displayParent = provParent.data;
+    }
+  } else {
+    displayParent = null;
+  }
+
+  let displaySystemid;
+
+  if (provSystemId != null) {
+    if (friendlyNameMap[provSystemId.data]) {
+      displaySystemid = friendlyNameMap[provSystemId.data];
+    } else {
+      displaySystemid = provSystemId.data;
+    }
+  } else {
+    displaySystemid = null;
+  }
   
   const [state, setState] = useState({
     loading: false,
   });
 
+  const [submissionError, setSubmissionError] = useState({
+    showError: false,
+    description: '' 
+  });
+
+  const handleProvisioningResponse = async (response, requestedId, requestedFqn) => {
+    const res = new LoginConsentProvisioningResponse(response);
+    
+    // Check the response to see if it is valid and if there are errors.
+    const verified = await verifyIdProvisioningResponse(res);
+  
+    if (!verified) throw new Error('Failed to verify response from service');
+  
+    const {decision} = res;
+    const {result} = decision;
+    const {
+      error_desc,
+      state,
+    } = result;
+  
+    if (state === LOGIN_CONSENT_PROVISIONING_RESULT_STATE_FAILED.vdxfid) {
+      throw new Error(error_desc);
+    } else if (state === LOGIN_CONSENT_PROVISIONING_RESULT_STATE_PENDINGAPPROVAL.vdxfid ||
+      state === LOGIN_CONSENT_PROVISIONING_RESULT_STATE_COMPLETE.vdxfid) { 
+  
+      if (!result.identity_address && !result.fully_qualified_name) {
+        throw new Error('Provisioning response did not contain an identity or fully qualified name');
+      }
+  
+      if (result.identity_address && result.identity_address !== requestedId) { 
+        throw new Error(`Provisioning response identity [${result.identity_address}] address does not match requested identity address[${requestedId}]`);
+      }
+  
+      if (result.fully_qualified_name && result.fully_qualified_name.toLowerCase() !== requestedFqn.toLowerCase()) {
+        throw new Error(`Provisioning response fully qualified name [${result.fully_qualified_name.toLowerCase()}] does not match requested fully qualified name[${requestedFqn.toLowerCase()}]`);
+      }
+    }
+  };
+
   const cancel = () => {
     dispatch(setNavigationPath(PROVISIONING_FORM));
-  }
+  };
 
   const submitData = async () => {
     setState({ loading: false});
 
-    const submissionSuccess = (response, requestedFqn) => {
+    const submissionSuccess = (response, requestedFqn, provisioningName) => {
       setState({ loading: false});
-      /*
-      this.props.navigation.navigate(SEND_MODAL_FORM_STEP_RESULT, {
-        response: response,
-        fullyQualifiedName: requestedFqn,
-        success: true
-      });
-      */
-    }
+      dispatch(setProvisioningResponse(response));
+      dispatch(setRequestedFqn(requestedFqn));
+      dispatch(setProvisioningName(provisioningName));
+      dispatch(setNavigationPath(PROVISIONING_RESULT));
+    };
 
     const submissionError = (msg) => {
-      console.error('Error', msg);
-
+      setSubmissionError({
+        showError: true,
+        description: msg,
+      });
       setState({ loading: false});
-    }
+    };
 
     try {
-      const loginRequest = new LoginConsentRequest(request)
+      const loginRequest = new LoginConsentRequest(request);
 
       const webhookSubject = loginRequest.challenge.provisioning_info ? loginRequest.challenge.provisioning_info.find(x => {
-        return x.vdxfkey === LOGIN_CONSENT_ID_PROVISIONING_WEBHOOK_VDXF_KEY.vdxfid
-      }) : null
+        return x.vdxfkey === LOGIN_CONSENT_ID_PROVISIONING_WEBHOOK_VDXF_KEY.vdxfid;
+      }) : null;
 
-      if (webhookSubject == null) throw new Error("No endpoint for ID provisioning")
+      if (webhookSubject == null) throw new Error("No endpoint for ID provisioning");
 
-      const webhookUrl = webhookSubject.data
+      const webhookUrl = webhookSubject.data;
 
       const identity =
         identityToProvisionField != null
@@ -111,14 +173,12 @@ const ProvisionIdentityConfirm = (props) => {
       try {
         fromBase58Check(identity);
         isIAddress = true;
-      } catch (e) {
+      } catch {
         isIAddress = false;
       }
 
       if (isIAddress) {
         const identityObj = await getIdentity(request.chainTicker, identity);
-        
-        // if (identityObj.error) throw new Error(identityObj.error.message)
   
         identityName = identityObj.identity.name;
         parent = identityObj.identity.parent;
@@ -133,14 +193,13 @@ const ProvisionIdentityConfirm = (props) => {
         const parentObj = await getIdentity(request.chainTicker, parent ? parent : loginRequest.system_id);
 
         requestedFqn = `${identityName.split(".")[0]}.${parentObj.fullyqualifiedname}`;
-        // TODO: Implement getVdxfId
-        nameId = (await getVdxfId(coinObj.system_id, requestedFqn)).result.vdxfid;
+        nameId = (await getVdxfId(request.chainTicker, requestedFqn)).vdxfid;
       }
 
       const provisionRequest = new LoginConsentProvisioningRequest({
         signing_address: primaryAddress,
         
-        challenge: LoginConsentProvisioningChallenge({
+        challenge: new LoginConsentProvisioningChallenge({
           challenge_id: loginRequest.challenge.challenge_id,
           created_at: Number((Date.now() / 1000).toFixed(0)),
           name: identityName,
@@ -148,40 +207,24 @@ const ProvisionIdentityConfirm = (props) => {
           parent: parent
         }),
       });
-
-      const res = provisionRequest;
-      console.log(res)
       
-      /*
-      const signedRequest = await signIdProvisioningRequest(coinObj, provisionRequest);
-
+      const signedRequest = await signIdProvisioningRequest(request.chainTicker, provisionRequest, primaryAddress);
+      
+      // The responding server should include the error within the response instead of 
+      // using an error code.
       const res = await axios.post(
         webhookUrl,
         signedRequest
       );
 
-      const provisioningName = (await getIdentity(coinObj.system_id, loginRequest.signing_id)).result.identity.name;
-      const newLoadingNotification = new LoadingNotification();
+      const provisionResponse = res.data;
+      await handleProvisioningResponse(provisionResponse, nameId, requestedFqn);
 
-      await handleProvisioningResponse(coinObj, res.data, loginRequest.toBuffer().toString('base64'), 
-        this.props.sendModal.data.fromService, provisioningName, newLoadingNotification.uid, nameId, requestedFqn, async () => {
-          
-          newLoadingNotification.body = "";
-          let formattedName = ''
-          const lastDotIndex = requestedFqn.lastIndexOf('.');
-          if (lastDotIndex === -1) formattedName = requestedFqn; // return the original string if there's no dot
-          else formattedName = requestedFqn.substring(0, lastDotIndex);
-
-          newLoadingNotification.title =  [`${formattedName}@`, ` is being provisioned by `, `${provisioningName}@`]
-          newLoadingNotification.acchash = this.props.activeAccount.accountHash;
-          newLoadingNotification.icon = NOTIFICATION_ICON_VERUSID;
-
-          dispatchAddNotification(newLoadingNotification);
-        });
-      */
-      submissionSuccess(res.data, requestedFqn)
+      const provisioningName = (await getIdentity(request.chainTicker, loginRequest.signing_id)).identity.name;
+      
+      submissionSuccess(res.data, requestedFqn, provisioningName);
     } catch (e) {
-      submissionError(e.message)
+      submissionError(e.message);
     }
   };
   
@@ -253,7 +296,7 @@ const ProvisionIdentityConfirm = (props) => {
               <Divider/>
               <ListItem>
                 <ListItemText primary="Primary address (once received)" disableTypography sx={{ fontWeight: 'bold' , pr:4}}/>
-                <ListItemText primary={primaryAddress.address} disableTypography sx={{textAlign:'right'}}/>
+                <ListItemText primary={primaryAddress} disableTypography sx={{textAlign:'right'}}/>
               </ListItem>
               {displayParent &&
                 <Box>
@@ -285,7 +328,11 @@ const ProvisionIdentityConfirm = (props) => {
             </List>
           </Card>
         </Box>
-        
+        <SnackbarAlert
+          open={submissionError.showError}
+          text={submissionError.description}
+          handleClose={() => {setSubmissionError(false, '');}}
+        ></SnackbarAlert>
         <div
           style={{
             width: "100%",
@@ -318,7 +365,7 @@ const ProvisionIdentityConfirm = (props) => {
             </Button>
             <Button
               variant="contained"
-              color="primary"
+              color="success"
               disabled={state.loading}
               onClick={() => submitData()}
               style={{
@@ -326,7 +373,7 @@ const ProvisionIdentityConfirm = (props) => {
                 padding: 8,
               }}
             >
-              {"Continue"}
+              {"Request"}
             </Button>
           </div>
         </div>

@@ -18,7 +18,6 @@ export const mainTheme = createTheme({
       textTransform: 'none',
       fontWeight: 600,
     },
-    //fontFamily: 'Source Sans Pro',
   },
   shape: {
     borderRadius: 14,

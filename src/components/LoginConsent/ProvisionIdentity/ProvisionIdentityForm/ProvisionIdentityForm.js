@@ -17,8 +17,10 @@ import { getIdentity } from '../../../../rpc/calls/getIdentity';
 import { InputAdornment } from '@mui/material';
 import { setIdentityToProvisionField, setProvisioningInfo } from '../../../../redux/reducers/provision/provision.actions';
 import { getAddresses } from '../../../../rpc/calls/getAddresses';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 
-const ProvisionIdentityForm = (props) => {
+const ProvisionIdentityForm = () => {
   const dispatch = useDispatch();
   const { request } = useSelector((state) => state.rpc.loginConsentRequest);
   const identityToProvisionField = useSelector((state) => state.provision.identityToProvisionField);
@@ -41,7 +43,7 @@ const ProvisionIdentityForm = (props) => {
     addresses: {},
   });
 
-  const [formError, setFormError] =  useState({
+  const [formError, setFormError] = useState({
     error: false,
     description: '' 
   });
@@ -74,6 +76,11 @@ const ProvisionIdentityForm = (props) => {
     };
 
     const initializeState = async () => {
+      setState((currentState) => ({
+        ...currentState,
+        loading: true,
+      }));
+
       await updateProvisioningInfoProcessedData();
 
       // Get the addresses of the wallet so the identity can be provisioned to one of them.
@@ -108,7 +115,7 @@ const ProvisionIdentityForm = (props) => {
                   dispatch(setIdentityToProvisionField(identity.identity.name));
                 }
                 if (idKey.vdxfkey === ID_PARENT_VDXF_KEY.vdxfid) {
-                  parentname = `.${identity.fullyqualifiedname}`
+                  parentname = `.${identity.fullyqualifiedname}`;
                 } 
               }
             }
@@ -129,7 +136,7 @@ const ProvisionIdentityForm = (props) => {
   }, []);
 
   const formHasError = () => {
-    const identity = identityToProvisionField?.trim() || '';
+    const identity = identityToProvisionField ? identityToProvisionField.trim() : '';
   
     if (!identity) {
       setFormError({
@@ -148,7 +155,7 @@ const ProvisionIdentityForm = (props) => {
         });
         return true;
       }
-    } catch (e) {
+    } catch {
       const formattedId = state.parentname ? `${identity}${state.parentname}` : `${identity}@`;
       if (!formattedId.endsWith('@')) {
         setFormError({
@@ -171,7 +178,7 @@ const ProvisionIdentityForm = (props) => {
   const submitData = async () => {
     if (formHasError()) return;
 
-    setState((currentState) => {return { ...currentState, loading: true}});
+    setState((currentState) => {return { ...currentState, loading: true};});
   
     const identity = identityToProvisionField;
 
@@ -180,7 +187,7 @@ const ProvisionIdentityForm = (props) => {
     try {
       fromBase58Check(identity);
       formattedId = identity;
-    } catch(e) {
+    } catch {
       formattedId = state.parentname ? `${identity}${state.parentname}` : `${identity}.${request.chainName}@`;
     }
 
@@ -208,14 +215,14 @@ const ProvisionIdentityForm = (props) => {
       }
     }
   
-    setState((currentState) => {return { ...currentState, loading: false}});
+    setState((currentState) => {return { ...currentState, loading: false};});
 
     if (!identityError) {
       // Find a public address to provision the identity to.
       const publicAddresses = state.addresses.public.filter((address) => address.tag === "public");
 
       dispatch(setProvisioningInfo({
-        primaryAddress: publicAddresses[0],
+        primaryAddress: publicAddresses[0].address,
         provAddress: state.provAddress,
         provSystemId: state.provSystemId,
         provFqn: state.provFqn,
@@ -225,11 +232,11 @@ const ProvisionIdentityForm = (props) => {
       }));
       dispatch(setNavigationPath(PROVISIONING_CONFIRM));
     }
-  }
+  };
 
   const cancel = () => {
     dispatch(setNavigationPath(SELECT_LOGIN_ID));
-  }
+  };
 
   return (
     <div
@@ -282,33 +289,43 @@ const ProvisionIdentityForm = (props) => {
             paddingTop: 2,
           }}
         >
-          <TextField
-            sx={{
-              maxWidth: 560,
-              width: "100%",
-            }}
-            variant="outlined"
-            error={formError.error}
-            helperText={formError.description}
-            label={state.parentname ? "VerusID name" : "i-Address or VerusID name"}
-            value={state.assignedIdentity
-              ? state.friendlyNameMap[state.assignedIdentity]
-                ? `${state.friendlyNameMap[state.assignedIdentity]}`
-                : state.assignedIdentity
-              : identityToProvisionField}
-            mode="outlined"
-            disabled={state.assignedIdentity != null || state.loading}
-            onChange={event => {
-              const text = event.target.value;
-              if (state.assignedIdentity == null && !text.endsWith("@")) {
-                dispatch(setIdentityToProvisionField(text));
-              }
-            }}
-            InputProps={{
-              endAdornment: <InputAdornment position="end">{state.parentname ? state.parentname : ``}</InputAdornment>,
-            }}
-          >
-          </TextField>
+          {state.loading ?
+            <Box sx={{ 
+              display: 'flex',
+              flex: 1,
+              alignItems: "center",
+            }}>
+              <CircularProgress />
+            </Box>
+            :
+            <TextField
+              sx={{
+                maxWidth: 560,
+                width: "100%",
+              }}
+              variant="outlined"
+              error={formError.error}
+              helperText={formError.description}
+              label={state.parentname ? "VerusID name" : "i-Address or VerusID name"}
+              value={state.assignedIdentity
+                ? state.friendlyNameMap[state.assignedIdentity]
+                  ? `${state.friendlyNameMap[state.assignedIdentity]}`
+                  : state.assignedIdentity
+                : identityToProvisionField}
+              mode="outlined"
+              disabled={state.assignedIdentity != null || state.loading}
+              onChange={event => {
+                const text = event.target.value;
+                if (state.assignedIdentity == null && !text.endsWith("@")) {
+                  dispatch(setIdentityToProvisionField(text));
+                }
+              }}
+              InputProps={{
+                endAdornment: <InputAdornment position="end">{state.parentname ? state.parentname : ``}</InputAdornment>,
+              }}
+            >
+            </TextField>
+          }
         </div>
 
         <div
@@ -358,6 +375,6 @@ const ProvisionIdentityForm = (props) => {
       </div>
     </div>
   );
-}
+};
 
 export default ProvisionIdentityForm;

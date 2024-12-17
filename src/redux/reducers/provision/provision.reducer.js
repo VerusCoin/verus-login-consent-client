@@ -3,25 +3,46 @@
 */
 import {
   SET_IDENTITY_TO_PROVISION_FIELD,
-  SET_PROVISONING_INFO
+  SET_PROVISONING_INFO,
+  SET_PROVISONING_NAME,
+  SET_PROVISONING_RESPONSE,
+  SET_REQUESTED_FQN
 } from "./provision.types";
 
 export const provision = (state = {
   identityToProvisionField: "",
   provisioningInfo: {},
+  provisioningResponse: {},
+  requestedFqn: "",
+  provisioningName: "",
 }, action) => {
   switch (action.type) {
-    case SET_IDENTITY_TO_PROVISION_FIELD:
-      return {
-        ...state,
-        identityToProvisionField: action.payload.idToProvisionField
-      }
-    case SET_PROVISONING_INFO:
-      return {
-        ...state,
-        provisioningInfo: action.payload.provisioningInfo
-      }
-    default:
-      return state;
+  case SET_IDENTITY_TO_PROVISION_FIELD:
+    return {
+      ...state,
+      identityToProvisionField: action.payload.idToProvisionField
+    };
+  case SET_PROVISONING_INFO:
+    return {
+      ...state,
+      provisioningInfo: action.payload.provisioningInfo
+    };
+  case SET_PROVISONING_RESPONSE:
+    return {
+      ...state,
+      provisioningResponse: action.payload.provisioningResponse
+    };
+  case SET_REQUESTED_FQN:
+    return {
+      ...state,
+      requestedFqn: action.payload.requestedFqn
+    };
+  case SET_PROVISONING_NAME:
+    return {
+      ...state,
+      provisioningName: action.payload.provisioningName
+    };
+  default:
+    return state;
   }
-}
+};
