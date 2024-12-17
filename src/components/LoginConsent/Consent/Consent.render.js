@@ -86,7 +86,7 @@ export const ConsentRender = function () {
             </Button>
             <Button
               variant="contained"
-              color="primary"
+              color="success"
               disabled={loading}
               onClick={() => this.tryLogin()}
               style={{
@@ -94,7 +94,7 @@ export const ConsentRender = function () {
                 padding: 8,
               }}
             >
-              {"Agree"}
+              {"Continue"}
             </Button>
           </div>
         </div>

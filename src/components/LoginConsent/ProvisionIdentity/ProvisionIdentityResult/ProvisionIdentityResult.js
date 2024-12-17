@@ -157,7 +157,7 @@ const ProvisionIdentityResult = () => {
           >
             <Button
               variant="contained"
-              color="primary"
+              color="success"
               disabled={checkForId}
               onClick={() => finishSend()}
               style={{
@@ -165,7 +165,7 @@ const ProvisionIdentityResult = () => {
                 padding: 8,
               }}
             >
-              {"Continue"}
+              {"Done"}
             </Button>
           </div>
         </div>

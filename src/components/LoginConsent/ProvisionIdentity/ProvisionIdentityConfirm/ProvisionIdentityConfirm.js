@@ -41,7 +41,6 @@ const ProvisionIdentityConfirm = () => {
     provSystemId,
     provFqn,
     provParent,
-    provWebhook,
     friendlyNameMap,
   } = provisioningInfo;
 
