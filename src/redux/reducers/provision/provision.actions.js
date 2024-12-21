@@ -3,7 +3,8 @@ import {
   SET_PROVISONING_INFO,
   SET_PROVISONING_NAME,
   SET_PROVISONING_RESPONSE,
-  SET_REQUESTED_FQN
+  SET_REQUESTED_FQN,
+  SET_REQUESTED_ID
 } from "./provision.types";
 
 export const setIdentityToProvisionField = (idToProvisionField) => {
@@ -38,6 +39,15 @@ export const setRequestedFqn = (requestedFqn) => {
     type: SET_REQUESTED_FQN,
     payload: {
       requestedFqn
+    }
+  };
+};
+
+export const setRequestedId = (requestedId) => {
+  return {
+    type: SET_REQUESTED_ID,
+    payload: {
+      requestedId
     }
   };
 };

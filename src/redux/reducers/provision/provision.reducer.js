@@ -6,15 +6,17 @@ import {
   SET_PROVISONING_INFO,
   SET_PROVISONING_NAME,
   SET_PROVISONING_RESPONSE,
-  SET_REQUESTED_FQN
+  SET_REQUESTED_FQN,
+  SET_REQUESTED_ID
 } from "./provision.types";
 
 export const provision = (state = {
-  identityToProvisionField: "",
+  identityToProvisionField: '',
   provisioningInfo: {},
   provisioningResponse: {},
-  requestedFqn: "",
-  provisioningName: "",
+  requestedFqn: '',
+  requestedId: '',
+  provisioningName: '',
 }, action) => {
   switch (action.type) {
   case SET_IDENTITY_TO_PROVISION_FIELD:
@@ -36,6 +38,11 @@ export const provision = (state = {
     return {
       ...state,
       requestedFqn: action.payload.requestedFqn
+    };
+  case SET_REQUESTED_ID:
+    return {
+      ...state,
+      requestedId: action.payload.requestedId
     };
   case SET_PROVISONING_NAME:
     return {

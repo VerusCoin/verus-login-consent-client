@@ -100,7 +100,7 @@ export const LoginRender = function () {
             flex: 1,
           }}
         >
-          {this.canProvision ? <Button
+          {this.canProvision && <Button
             variant="contained"
             color="primary"
             disabled={loading}
@@ -110,8 +110,8 @@ export const LoginRender = function () {
               padding: 8,
             }}
           >
-            {"Request a VerusID"}
-          </Button> : {}}
+            {"Request a new VerusID"}
+          </Button>}
         </div>
         <div
           style={{

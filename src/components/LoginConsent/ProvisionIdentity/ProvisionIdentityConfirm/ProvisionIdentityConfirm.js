@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { PROVISIONING_FORM, PROVISIONING_RESULT } from '../../../../utils/constants';
 import { setNavigationPath } from '../../../../redux/reducers/navigation/navigation.actions';
 import Button from '@mui/material/Button';
-import { VerusIdLogo } from "../../../../images";
+import { VerusIdLogo } from '../../../../images';
 import Card from '@mui/material/Card';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -27,7 +27,12 @@ import { signIdProvisioningRequest } from '../../../../rpc/calls/signIdProvision
 import axios from 'axios';
 import { SnackbarAlert } from '../../../../containers/SnackbarAlert';
 import { verifyIdProvisioningResponse } from '../../../../rpc/calls/verifyIdProvisioningResponse';
-import { setProvisioningName, setProvisioningResponse, setRequestedFqn } from '../../../../redux/reducers/provision/provision.actions';
+import {
+  setProvisioningName,
+  setProvisioningResponse,
+  setRequestedFqn,
+  setRequestedId
+} from '../../../../redux/reducers/provision/provision.actions';
 
 const ProvisionIdentityConfirm = () => {
   const dispatch = useDispatch();
@@ -47,13 +52,13 @@ const ProvisionIdentityConfirm = () => {
   let displayIdentity;
   
   if (provFqn) {
-    if (provFqn.data) {
-      displayIdentity = friendlyNameMap[identityToProvisionField];
-    } else {
-      displayIdentity = `${friendlyNameMap[identityToProvisionField]}@`;
-    }
+    displayIdentity = provFqn.data;
   } else {
-    displayIdentity = identityToProvisionField;
+    if (friendlyNameMap[identityToProvisionField]) {
+      displayIdentity = `${friendlyNameMap[identityToProvisionField]}@`;
+    } else {
+      displayIdentity = identityToProvisionField;
+    }
   }
 
   let displayParent;
@@ -93,9 +98,10 @@ const ProvisionIdentityConfirm = () => {
     const res = new LoginConsentProvisioningResponse(response);
     
     // Check the response to see if it is valid and if there are errors.
-    const verified = await verifyIdProvisioningResponse(res);
+    const verificationCheck = await verifyIdProvisioningResponse(res);
+    const verified = verificationCheck.verified;
   
-    if (!verified) throw new Error('Failed to verify response from service');
+    if (!verified) throw new Error('Failed to verify response from the provisioning service.');
   
     const {decision} = res;
     const {result} = decision;
@@ -110,15 +116,17 @@ const ProvisionIdentityConfirm = () => {
       state === LOGIN_CONSENT_PROVISIONING_RESULT_STATE_COMPLETE.vdxfid) { 
   
       if (!result.identity_address && !result.fully_qualified_name) {
-        throw new Error('Provisioning response did not contain an identity or fully qualified name');
+        throw new Error('Provisioning response did not contain an identity or fully qualified name.');
       }
   
       if (result.identity_address && result.identity_address !== requestedId) { 
-        throw new Error(`Provisioning response identity [${result.identity_address}] address does not match requested identity address[${requestedId}]`);
+        throw new Error(`Provisioning response identity [${result.identity_address}]
+          address does not match requested identity address[${requestedId}].`);
       }
   
       if (result.fully_qualified_name && result.fully_qualified_name.toLowerCase() !== requestedFqn.toLowerCase()) {
-        throw new Error(`Provisioning response fully qualified name [${result.fully_qualified_name.toLowerCase()}] does not match requested fully qualified name[${requestedFqn.toLowerCase()}]`);
+        throw new Error(`Provisioning response fully qualified name [${result.fully_qualified_name.toLowerCase()}]
+          does not match requested fully qualified name[${requestedFqn.toLowerCase()}].`);
       }
     }
   };
@@ -130,11 +138,12 @@ const ProvisionIdentityConfirm = () => {
   const submitData = async () => {
     setState({ loading: false});
 
-    const submissionSuccess = (response, requestedFqn, provisioningName) => {
+    const submissionSuccess = (response, requestedFqn, provisioningName, requestedId) => {
       setState({ loading: false});
       dispatch(setProvisioningResponse(response));
       dispatch(setRequestedFqn(requestedFqn));
       dispatch(setProvisioningName(provisioningName));
+      dispatch(setRequestedId(requestedId));
       dispatch(setNavigationPath(PROVISIONING_RESULT));
     };
 
@@ -153,7 +162,7 @@ const ProvisionIdentityConfirm = () => {
         return x.vdxfkey === LOGIN_CONSENT_ID_PROVISIONING_WEBHOOK_VDXF_KEY.vdxfid;
       }) : null;
 
-      if (webhookSubject == null) throw new Error("No endpoint for ID provisioning");
+      if (webhookSubject == null) throw new Error('No endpoint for ID provisioning');
 
       const webhookUrl = webhookSubject.data;
 
@@ -186,12 +195,12 @@ const ProvisionIdentityConfirm = () => {
         requestedFqn = identityObj.fullyqualifiedname;
         
       } else {
-        identityName = identity.split("@")[0];
+        identityName = identity.split('@')[0];
         parent = provParent ? provParent.data : null;
         systemid = provSystemId ? provSystemId.data : null;
         const parentObj = await getIdentity(request.chainTicker, parent ? parent : loginRequest.system_id);
 
-        requestedFqn = `${identityName.split(".")[0]}.${parentObj.fullyqualifiedname}`;
+        requestedFqn = `${identityName.split('.')[0]}.${parentObj.fullyqualifiedname}`;
         nameId = (await getVdxfId(request.chainTicker, requestedFqn)).vdxfid;
       }
 
@@ -221,7 +230,7 @@ const ProvisionIdentityConfirm = () => {
 
       const provisioningName = (await getIdentity(request.chainTicker, loginRequest.signing_id)).identity.name;
       
-      submissionSuccess(res.data, requestedFqn, provisioningName);
+      submissionSuccess(res.data, requestedFqn, provisioningName, nameId);
     } catch (e) {
       submissionError(e.message);
     }
@@ -231,40 +240,40 @@ const ProvisionIdentityConfirm = () => {
   return (
     <div
       style={{
-        display: "flex",
-        flexDirection: "column",
+        display: 'flex',
+        flexDirection: 'column',
         flex: 1,
-        height: "100%",
+        height: '100%',
       }}
     >
       <div
         style={{
-          height: "100%",
-          display: "flex",
+          height: '100%',
+          display: 'flex',
           padding: 32,
-          flexDirection: "column",
-          alignItems: "center",
+          flexDirection: 'column',
+          alignItems: 'center',
         }}
       >
         <img src={VerusIdLogo} width={'55%'} height={'10%'}/>
         <div
           style={{
-            width: "100%",
-            display: "flex",
-            justifyContent: "flex-start",
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'flex-start',
           }}
         >
           <div
             style={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              flexDirection: "row",
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              flexDirection: 'row',
               padding: 8,
             }}
           >
-            {`Review Provisioning Request`}
+            {`Review the Provisioning Request`}
           </div>
         </div>
         <Box sx={{
@@ -280,28 +289,28 @@ const ProvisionIdentityConfirm = () => {
           }}> 
             <List>
               <ListItem>
-                <ListItemText primary="Identity" disableTypography sx={{ fontWeight: 'bold' , pr:4}}/>
+                <ListItemText primary='Identity' disableTypography sx={{ fontWeight: 'bold' , pr:4}}/>
                 <ListItemText primary={displayIdentity} disableTypography sx={{textAlign:'right'}}/>
               </ListItem>
               {provAddress &&
                 <Box>
                   <Divider/>
                   <ListItem>
-                    <ListItemText primary="Identity address" disableTypography sx={{ fontWeight: 'bold' , pr:4}}/>
+                    <ListItemText primary='Identity address' disableTypography sx={{ fontWeight: 'bold' , pr:4}}/>
                     <ListItemText primary={provAddress.data} disableTypography sx={{textAlign:'right'}}/>
                   </ListItem>
                 </Box>
               }
               <Divider/>
               <ListItem>
-                <ListItemText primary="Primary address (once received)" disableTypography sx={{ fontWeight: 'bold' , pr:4}}/>
+                <ListItemText primary='Primary address (once received)' disableTypography sx={{ fontWeight: 'bold' , pr:4}}/>
                 <ListItemText primary={primaryAddress} disableTypography sx={{textAlign:'right'}}/>
               </ListItem>
               {displayParent &&
                 <Box>
                   <Divider/>
                   <ListItem>
-                    <ListItemText primary="Identity parent" disableTypography sx={{ fontWeight: 'bold' , pr:4}}/>
+                    <ListItemText primary='Identity parent' disableTypography sx={{ fontWeight: 'bold' , pr:4}}/>
                     <ListItemText primary={displayParent} disableTypography sx={{textAlign:'right'}}/>
                   </ListItem>
                 </Box>
@@ -310,8 +319,8 @@ const ProvisionIdentityConfirm = () => {
                 <Box>
                   <Divider/>
                   <ListItem>
-                    <ListItemText primary="Full identity name" disableTypography sx={{ fontWeight: 'bold' , pr:4}}/>
-                    <ListItemText primary={provFqn} disableTypography sx={{textAlign:'right'}}/>
+                    <ListItemText primary='Full identity name' disableTypography sx={{ fontWeight: 'bold' , pr:4}}/>
+                    <ListItemText primary={provFqn.data} disableTypography sx={{textAlign:'right'}}/>
                   </ListItem>
                 </Box>
               }
@@ -319,7 +328,7 @@ const ProvisionIdentityConfirm = () => {
                 <Box>
                   <Divider/>
                   <ListItem>
-                    <ListItemText primary="Identity system ID" disableTypography sx={{ fontWeight: 'bold' , pr:4}}/>
+                    <ListItemText primary='Identity system ID' disableTypography sx={{ fontWeight: 'bold' , pr:4}}/>
                     <ListItemText primary={displaySystemid} disableTypography sx={{textAlign:'right'}}/>
                   </ListItem>
                 </Box>
@@ -334,25 +343,25 @@ const ProvisionIdentityConfirm = () => {
         ></SnackbarAlert>
         <div
           style={{
-            width: "100%",
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "flex-end",
-            justifyContent: "flex-end",
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'flex-end',
+            justifyContent: 'flex-end',
           }}
         >
           <div
             style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
             }}
           >
             <Button
-              variant="text"
+              variant='text'
               disabled={state.loading}
-              color="secondary"
+              color='secondary'
               onClick={() => cancel()}
               style={{
                 width: 120,
@@ -360,11 +369,11 @@ const ProvisionIdentityConfirm = () => {
                 padding: 8,
               }}
             >
-              {"Back"}
+              {'Back'}
             </Button>
             <Button
-              variant="contained"
-              color="success"
+              variant='contained'
+              color='success'
               disabled={state.loading}
               onClick={() => submitData()}
               style={{
@@ -372,7 +381,7 @@ const ProvisionIdentityConfirm = () => {
                 padding: 8,
               }}
             >
-              {"Request"}
+              {'Request'}
             </Button>
           </div>
         </div>

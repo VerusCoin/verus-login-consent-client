@@ -12,7 +12,7 @@ import {
 } from 'verus-typescript-primitives';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import { VerusIdLogo } from "../../../../images";
+import { VerusIdLogo } from '../../../../images';
 import { getIdentity } from '../../../../rpc/calls/getIdentity';
 import { InputAdornment } from '@mui/material';
 import { setIdentityToProvisionField, setProvisioningInfo } from '../../../../redux/reducers/provision/provision.actions';
@@ -104,19 +104,33 @@ const ProvisionIdentityForm = () => {
 
           for (const idKey of identitykeys) {
             if (idKey != null) {
-              const identity = await getIdentity(request.chainTicker, idKey.data);
+              try {
+                const identity = await getIdentity(request.chainTicker, idKey.data);
     
-              if (identity) {
-                friendlyNameMap[identity.identity.identityaddress] =
-                  identity.identity.name;
-    
-                if (provIdKey != null && idKey.data === provIdKey.data) {
-                  assignedIdentity = identity.identity.identityaddress;
-                  dispatch(setIdentityToProvisionField(identity.identity.name));
+                if (identity) {
+                  // Get only the first part of the name to match the 'name' part of a getidentity call.
+                  let name = '';
+                  const firstDoxIndex = identity.identity.name.indexOf('.');
+                  if (firstDoxIndex === -1) name = identity.identity.name;
+                  else name = identity.identity.name.substring(0, firstDoxIndex);
+
+                  friendlyNameMap[identity.identity.identityaddress] =
+                    name;
+      
+                  if (provIdKey != null && idKey.data === provIdKey.data) {
+                    assignedIdentity = identity.identity.identityaddress;
+                    dispatch(setIdentityToProvisionField(name));
+                  }
+                  if (idKey.vdxfkey === ID_PARENT_VDXF_KEY.vdxfid) {
+                    parentname = `.${identity.fullyqualifiedname}`;
+                  } 
                 }
-                if (idKey.vdxfkey === ID_PARENT_VDXF_KEY.vdxfid) {
-                  parentname = `.${identity.fullyqualifiedname}`;
-                } 
+              } catch {
+                // If the given fully qualified name doesn't exist, then
+                // it is not valid and should be ignored.
+                if (idKey.data === currentState.provFqn.data) {
+                  currentState.provFqn = null;
+                }
               }
             }
           }
@@ -197,20 +211,22 @@ const ProvisionIdentityForm = () => {
       await getIdentity(request.chainTicker, formattedId);
 
       // If we get a result back, that means the identity must already exist.
-      identityError = true;
-      setFormError({
-        error: true,
-        description: 'Identity name taken, please select a different name.'
-      });
-  
-    } catch (e) {
-      // Check for an invalid identity, otherwise the identity is valid since it does not already exist
-      // and it is using valid characters.
-      if (e.message.includes("Identity parameter must be valid friendly name or identity address")) {
+      // That is expected if the identity is already assigned by the provisioning service.
+      if (!state.assignedIdentity) {
         identityError = true;
         setFormError({
           error: true,
-          description: 'Identity name must not include / : * ? " < > | @ .'
+          description: 'Identity name taken, please select a different name.'
+        });
+      }
+    } catch (e) {
+      // Check for an invalid identity, otherwise the identity is valid since it does not already exist
+      // and it is using valid characters.
+      if (e.message.includes('Identity parameter must be valid friendly name or identity address')) {
+        identityError = true;
+        setFormError({
+          error: true,
+          description: `Identity name must not include / : * ? ' < > | @ .`
         });
       }
     }
@@ -219,7 +235,7 @@ const ProvisionIdentityForm = () => {
 
     if (!identityError) {
       // Find a public address to provision the identity to.
-      const publicAddresses = state.addresses.public.filter((address) => address.tag === "public");
+      const publicAddresses = state.addresses.public.filter((address) => address.tag === 'public');
 
       dispatch(setProvisioningInfo({
         primaryAddress: publicAddresses[0].address,
@@ -241,50 +257,50 @@ const ProvisionIdentityForm = () => {
   return (
     <div
       style={{
-        display: "flex",
-        flexDirection: "column",
+        display: 'flex',
+        flexDirection: 'column',
         flex: 1,
-        height: "100%",
+        height: '100%',
       }}
     >
       <div
         style={{
-          height: "100%",
-          display: "flex",
+          height: '100%',
+          display: 'flex',
           padding: 32,
-          flexDirection: "column",
-          alignItems: "center",
+          flexDirection: 'column',
+          alignItems: 'center',
         }}
       >
         <img src={VerusIdLogo} width={'55%'} height={'10%'}/>
         <div
           style={{
-            width: "100%",
-            display: "flex",
-            justifyContent: "flex-start",
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'flex-start',
           }}
         >
           <div
             style={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              flexDirection: "row",
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              flexDirection: 'row',
               padding: 8,
             }}
           >
-            {`Request VerusID`}
+            {`Request a VerusID`}
           </div>
         </div>
 
         <div
           style={{
-            width: "100%",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "flex-start",
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
             flex: 1,
             paddingTop: 2,
           }}
@@ -293,7 +309,7 @@ const ProvisionIdentityForm = () => {
             <Box sx={{ 
               display: 'flex',
               flex: 1,
-              alignItems: "center",
+              alignItems: 'center',
             }}>
               <CircularProgress />
             </Box>
@@ -301,27 +317,30 @@ const ProvisionIdentityForm = () => {
             <TextField
               sx={{
                 maxWidth: 560,
-                width: "100%",
+                width: '100%',
               }}
-              variant="outlined"
+              variant='outlined'
               error={formError.error}
               helperText={formError.description}
-              label={state.parentname ? "VerusID name" : "i-Address or VerusID name"}
+              label={state.parentname ? 'VerusID name' : 'i-Address or VerusID name'}
               value={state.assignedIdentity
                 ? state.friendlyNameMap[state.assignedIdentity]
                   ? `${state.friendlyNameMap[state.assignedIdentity]}`
                   : state.assignedIdentity
                 : identityToProvisionField}
-              mode="outlined"
+              mode='outlined'
               disabled={state.assignedIdentity != null || state.loading}
               onChange={event => {
                 const text = event.target.value;
-                if (state.assignedIdentity == null && !text.endsWith("@")) {
+                if (state.assignedIdentity == null) {
                   dispatch(setIdentityToProvisionField(text));
                 }
               }}
               InputProps={{
-                endAdornment: <InputAdornment position="end">{state.parentname ? state.parentname : ``}</InputAdornment>,
+                endAdornment: 
+                  <InputAdornment position='end'>
+                    {state.parentname ? state.parentname : ``}
+                  </InputAdornment>,
               }}
             >
             </TextField>
@@ -330,25 +349,25 @@ const ProvisionIdentityForm = () => {
 
         <div
           style={{
-            width: "100%",
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "flex-end",
-            justifyContent: "flex-end",
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'flex-end',
+            justifyContent: 'flex-end',
           }}
         >
           <div
             style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
             }}
           >
             <Button
-              variant="text"
+              variant='text'
               disabled={state.loading}
-              color="secondary"
+              color='secondary'
               onClick={() => cancel()}
               style={{
                 width: 120,
@@ -356,11 +375,11 @@ const ProvisionIdentityForm = () => {
                 padding: 8,
               }}
             >
-              {"Back"}
+              {'Back'}
             </Button>
             <Button
-              variant="contained"
-              color="primary"
+              variant='contained'
+              color='primary'
               disabled={state.loading}
               onClick={() => submitData()}
               style={{
@@ -368,7 +387,7 @@ const ProvisionIdentityForm = () => {
                 padding: 8,
               }}
             >
-              {"Continue"}
+              {'Continue'}
             </Button>
           </div>
         </div>
