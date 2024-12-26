@@ -27,21 +27,18 @@ const ProvisionIdentityForm = () => {
 
   const hasProvisioningInfo = request != null && request.challenge.provisioning_info != null;
 
-  const [state, setState] = useState({
-    friendlyNameMap: {},
-    provisioningInfo: hasProvisioningInfo
-      ? request.challenge.provisioning_info
-      : [],
-    provAddress: null,
-    provSystemId: null,
-    provFqn: null,
-    provParent: null,
-    provWebhook: null,
-    assignedIdentity: null,
-    loading: false,
-    parentname: '',
-    addresses: {},
-  });
+  const [friendlyNameMap, setFriendlyNameMap] = useState({});
+
+  const [provAddress, setProvAddress] = useState(null);
+  const [provSystemId, setProvSystemId] = useState(null);
+  const [provFqn, setProvFqn] = useState(null);
+  const [provParent, setProvParent] = useState(null);
+  const [provWebhook, setProvWebhook] = useState(null);
+  const [assignedIdentity, setAssignedIdentity] = useState(null);
+
+  const [loading, setLoading] = useState(false);
+  const [parentName, setParentName] = useState('');
+  const [addresses, setAddresses] = useState({});
 
   const [formError, setFormError] = useState({
     error: false,
@@ -59,94 +56,79 @@ const ProvisionIdentityForm = () => {
           (x) => x.vdxfkey === key.vdxfid
         );
   
-      const provAddress = findProvisioningInfo(ID_ADDRESS_VDXF_KEY);
-      const provSystemId = findProvisioningInfo(ID_SYSTEMID_VDXF_KEY);
-      const provFqn = findProvisioningInfo(ID_FULLYQUALIFIEDNAME_VDXF_KEY);
-      const provParent = findProvisioningInfo(ID_PARENT_VDXF_KEY);
-      const provWebhook = findProvisioningInfo(LOGIN_CONSENT_ID_PROVISIONING_WEBHOOK_VDXF_KEY);
-  
-      setState((currentState) => ({
-        ...currentState,
-        provAddress,
-        provSystemId,
-        provFqn,
-        provParent,
-        provWebhook,
-      }));
+      const address = findProvisioningInfo(ID_ADDRESS_VDXF_KEY);
+      const systemId = findProvisioningInfo(ID_SYSTEMID_VDXF_KEY);
+      const fqn = findProvisioningInfo(ID_FULLYQUALIFIEDNAME_VDXF_KEY);
+      const parent = findProvisioningInfo(ID_PARENT_VDXF_KEY);
+      const webhook = findProvisioningInfo(LOGIN_CONSENT_ID_PROVISIONING_WEBHOOK_VDXF_KEY);
+
+      return {address, systemId, fqn, parent, webhook};
     };
 
     const initializeState = async () => {
-      setState((currentState) => ({
-        ...currentState,
-        loading: true,
-      }));
+      setLoading(true);
 
-      await updateProvisioningInfoProcessedData();
+      const {address, systemId, fqn, parent, webhook} = await updateProvisioningInfoProcessedData();
 
       // Get the addresses of the wallet so the identity can be provisioned to one of them.
       const addresses = await getAddresses(request.chainTicker, true, false);
-      setState((currentState) => ({
-        ...currentState,
-        addresses
-      }));
+      setAddresses(addresses);
     
-      setState((currentState) => {
-        const provIdKey = currentState.provAddress || currentState.provFqn || null;
-    
-        const identitykeys = provIdKey == null ? [] : [provIdKey];
-        if (currentState.provParent) identitykeys.push(currentState.provParent);
-        if (currentState.provSystemId) identitykeys.push(currentState.provSystemId);
-    
-        const fetchIdentities = async () => {
-          let friendlyNameMap = currentState.friendlyNameMap;
-          let assignedIdentity = null;
-          let parentname = '';
+      const provIdKey = address || fqn || null;
+  
+      const identitykeys = provIdKey == null ? [] : [provIdKey];
+      if (parent) identitykeys.push(parent);
+      if (systemId) identitykeys.push(systemId);
+  
+      const fetchIdentities = async () => {
+        let newFriendlyNameMap = friendlyNameMap;
+        for (const idKey of identitykeys) {
+          if (idKey != null) {
+            try {
+              const identity = await getIdentity(request.chainTicker, idKey.data);
+  
+              if (identity) {
+                // Get only the first part of the name to match the 'name' part of a getidentity call.
+                let name = '';
+                const firstDoxIndex = identity.identity.name.indexOf('.');
+                if (firstDoxIndex === -1) name = identity.identity.name;
+                else name = identity.identity.name.substring(0, firstDoxIndex);
 
-          for (const idKey of identitykeys) {
-            if (idKey != null) {
-              try {
-                const identity = await getIdentity(request.chainTicker, idKey.data);
+                newFriendlyNameMap[identity.identity.identityaddress] =
+                  name;
     
-                if (identity) {
-                  // Get only the first part of the name to match the 'name' part of a getidentity call.
-                  let name = '';
-                  const firstDoxIndex = identity.identity.name.indexOf('.');
-                  if (firstDoxIndex === -1) name = identity.identity.name;
-                  else name = identity.identity.name.substring(0, firstDoxIndex);
-
-                  friendlyNameMap[identity.identity.identityaddress] =
-                    name;
-      
-                  if (provIdKey != null && idKey.data === provIdKey.data) {
-                    assignedIdentity = identity.identity.identityaddress;
-                    dispatch(setIdentityToProvisionField(name));
-                  }
-                  if (idKey.vdxfkey === ID_PARENT_VDXF_KEY.vdxfid) {
-                    parentname = `.${identity.fullyqualifiedname}`;
-                  } 
+                if (provIdKey != null && idKey.data === provIdKey.data) {
+                  setAssignedIdentity(identity.identity.identityaddress);
+                  dispatch(setIdentityToProvisionField(name));
                 }
-              } catch {
-                // If the given fully qualified name doesn't exist, then
-                // it is not valid and should be ignored.
-                if (idKey.data === currentState.provFqn.data) {
-                  currentState.provFqn = null;
-                }
+                if (idKey.vdxfkey === ID_PARENT_VDXF_KEY.vdxfid) {
+                  const parentName = `.${identity.fullyqualifiedname}`;
+                  setParentName(parentName);
+                } 
+              }
+            } catch {
+              // If the given fully qualified name doesn't exist, then
+              // it is not valid and should be ignored.
+              if (idKey.data === provFqn.data) {
+                setProvFqn(null);
               }
             }
           }
-    
-          return { friendlyNameMap, assignedIdentity, parentname };
-        };
-    
-        fetchIdentities().then(({ parentname, friendlyNameMap, assignedIdentity }) => {
-          setState({ ...currentState, friendlyNameMap, assignedIdentity, loading: false, parentname });
-        });
-    
-        return { ...currentState, loading: true };
-      });
+        }
+
+        setFriendlyNameMap(newFriendlyNameMap);
+        setProvAddress(address);
+        setProvSystemId(systemId);
+        setProvFqn(fqn);
+        setProvParent(parent);
+        setProvWebhook(webhook);
+      };
+
+      fetchIdentities();
+      setLoading(false);
     };
     
-    initializeState();    
+    initializeState();
   }, []);
 
   const formHasError = () => {
@@ -162,7 +144,7 @@ const ProvisionIdentityForm = () => {
   
     try {
       fromBase58Check(identity);
-      if (state.parentname) {
+      if (parentName) {
         setFormError({
           error: true,
           description: 'i-Address cannot have a parent name.'
@@ -170,7 +152,7 @@ const ProvisionIdentityForm = () => {
         return true;
       }
     } catch {
-      const formattedId = state.parentname ? `${identity}${state.parentname}` : `${identity}@`;
+      const formattedId = parentName ? `${identity}${parentName}` : `${identity}@`;
       if (!formattedId.endsWith('@')) {
         setFormError({
           error: true,
@@ -192,7 +174,7 @@ const ProvisionIdentityForm = () => {
   const submitData = async () => {
     if (formHasError()) return;
 
-    setState((currentState) => {return { ...currentState, loading: true};});
+    setLoading(true);
   
     const identity = identityToProvisionField;
 
@@ -202,7 +184,7 @@ const ProvisionIdentityForm = () => {
       fromBase58Check(identity);
       formattedId = identity;
     } catch {
-      formattedId = state.parentname ? `${identity}${state.parentname}` : `${identity}.${request.chainName}@`;
+      formattedId = parentName ? `${identity}${parentName}` : `${identity}.${request.chainName}@`;
     }
 
     let identityError = false;
@@ -212,7 +194,7 @@ const ProvisionIdentityForm = () => {
 
       // If we get a result back, that means the identity must already exist.
       // That is expected if the identity is already assigned by the provisioning service.
-      if (!state.assignedIdentity) {
+      if (!assignedIdentity) {
         identityError = true;
         setFormError({
           error: true,
@@ -231,20 +213,20 @@ const ProvisionIdentityForm = () => {
       }
     }
   
-    setState((currentState) => {return { ...currentState, loading: false};});
+    setLoading(false);
 
     if (!identityError) {
       // Find a public address to provision the identity to.
-      const publicAddresses = state.addresses.public.filter((address) => address.tag === 'public');
+      const publicAddresses = addresses.public.filter((address) => address.tag === 'public');
 
       dispatch(setProvisioningInfo({
         primaryAddress: publicAddresses[0].address,
-        provAddress: state.provAddress,
-        provSystemId: state.provSystemId,
-        provFqn: state.provFqn,
-        provParent: state.provParent,
-        provWebhook: state.provWebhook,
-        friendlyNameMap: state.friendlyNameMap
+        provAddress: provAddress,
+        provSystemId: provSystemId,
+        provFqn: provFqn,
+        provParent: provParent,
+        provWebhook: provWebhook,
+        friendlyNameMap: friendlyNameMap
       }));
       dispatch(setNavigationPath(PROVISIONING_CONFIRM));
     }
@@ -305,7 +287,7 @@ const ProvisionIdentityForm = () => {
             paddingTop: 2,
           }}
         >
-          {state.loading ?
+          {loading ?
             <Box sx={{ 
               display: 'flex',
               flex: 1,
@@ -322,24 +304,24 @@ const ProvisionIdentityForm = () => {
               variant='outlined'
               error={formError.error}
               helperText={formError.description}
-              label={state.parentname ? 'VerusID name' : 'i-Address or VerusID name'}
-              value={state.assignedIdentity
-                ? state.friendlyNameMap[state.assignedIdentity]
-                  ? `${state.friendlyNameMap[state.assignedIdentity]}`
-                  : state.assignedIdentity
+              label={parentName ? 'VerusID name' : 'i-Address or VerusID name'}
+              value={assignedIdentity
+                ? friendlyNameMap[assignedIdentity]
+                  ? `${friendlyNameMap[assignedIdentity]}`
+                  : assignedIdentity
                 : identityToProvisionField}
               mode='outlined'
-              disabled={state.assignedIdentity != null || state.loading}
+              disabled={assignedIdentity != null || loading}
               onChange={event => {
                 const text = event.target.value;
-                if (state.assignedIdentity == null) {
+                if (assignedIdentity == null) {
                   dispatch(setIdentityToProvisionField(text));
                 }
               }}
               InputProps={{
                 endAdornment: 
                   <InputAdornment position='end'>
-                    {state.parentname ? state.parentname : ``}
+                    {parentName ? parentName : ``}
                   </InputAdornment>,
               }}
             >
@@ -366,7 +348,7 @@ const ProvisionIdentityForm = () => {
           >
             <Button
               variant='text'
-              disabled={state.loading}
+              disabled={loading}
               color='secondary'
               onClick={() => cancel()}
               style={{
@@ -380,7 +362,7 @@ const ProvisionIdentityForm = () => {
             <Button
               variant='contained'
               color='primary'
-              disabled={state.loading}
+              disabled={loading}
               onClick={() => submitData()}
               style={{
                 width: 120,

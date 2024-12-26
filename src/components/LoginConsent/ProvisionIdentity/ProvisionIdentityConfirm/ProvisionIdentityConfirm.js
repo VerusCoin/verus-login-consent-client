@@ -85,9 +85,7 @@ const ProvisionIdentityConfirm = () => {
     displaySystemid = null;
   }
   
-  const [state, setState] = useState({
-    loading: false,
-  });
+  const [loading, setLoading] = useState(false);
 
   const [submissionError, setSubmissionError] = useState({
     showError: false,
@@ -136,10 +134,10 @@ const ProvisionIdentityConfirm = () => {
   };
 
   const submitData = async () => {
-    setState({ loading: false});
+    setLoading(true);
 
     const submissionSuccess = (response, requestedFqn, provisioningName, requestedId) => {
-      setState({ loading: false});
+      setLoading(false);
       dispatch(setProvisioningResponse(response));
       dispatch(setRequestedFqn(requestedFqn));
       dispatch(setProvisioningName(provisioningName));
@@ -152,7 +150,7 @@ const ProvisionIdentityConfirm = () => {
         showError: true,
         description: msg,
       });
-      setState({ loading: false});
+      setLoading(false);
     };
 
     try {
@@ -360,7 +358,7 @@ const ProvisionIdentityConfirm = () => {
           >
             <Button
               variant='text'
-              disabled={state.loading}
+              disabled={loading}
               color='secondary'
               onClick={() => cancel()}
               style={{
@@ -374,7 +372,7 @@ const ProvisionIdentityConfirm = () => {
             <Button
               variant='contained'
               color='success'
-              disabled={state.loading}
+              disabled={loading}
               onClick={() => submitData()}
               style={{
                 width: 120,
