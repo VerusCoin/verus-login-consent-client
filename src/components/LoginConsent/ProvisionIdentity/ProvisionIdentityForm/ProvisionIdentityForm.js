@@ -12,18 +12,23 @@ import {
 } from 'verus-typescript-primitives';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import { VerusIdLogo } from '../../../../images';
-import { getIdentity } from '../../../../rpc/calls/getIdentity';
-import { InputAdornment } from '@mui/material';
-import { setIdentityToProvisionField, setProvisioningInfo } from '../../../../redux/reducers/provision/provision.actions';
-import { getAddresses } from '../../../../rpc/calls/getAddresses';
+import FormControl from '@mui/material/FormControl';
+import InputAdornment from '@mui/material/InputAdornment';
+import Select from '@mui/material/Select';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
+import MenuItem from '@mui/material/MenuItem';
+import InputLabel from '@mui/material/InputLabel';
+import { VerusIdLogo } from '../../../../images';
+import { getIdentity } from '../../../../rpc/calls/getIdentity';
+import { setIdentityToProvisionField, setPrimaryAddress, setProvisioningInfo } from '../../../../redux/reducers/provision/provision.actions';
+import { getAddresses } from '../../../../rpc/calls/getAddresses';
 
 const ProvisionIdentityForm = () => {
   const dispatch = useDispatch();
   const { request } = useSelector((state) => state.rpc.loginConsentRequest);
   const identityToProvisionField = useSelector((state) => state.provision.identityToProvisionField);
+  const initialPrimaryAddress = useSelector((state) => state.provision.primaryAddress);
 
   const hasProvisioningInfo = request != null && request.challenge.provisioning_info != null;
 
@@ -38,7 +43,8 @@ const ProvisionIdentityForm = () => {
 
   const [loading, setLoading] = useState(false);
   const [parentName, setParentName] = useState('');
-  const [addresses, setAddresses] = useState({});
+  const [publicAddresses, setPublicAddresses] = useState([]);
+  const [selectedPublicAddress, setSelectedPublicAddress] = useState(initialPrimaryAddress);
 
   const [formError, setFormError] = useState({
     error: false,
@@ -72,7 +78,10 @@ const ProvisionIdentityForm = () => {
 
       // Get the addresses of the wallet so the identity can be provisioned to one of them.
       const addresses = await getAddresses(request.chainTicker, true, false);
-      setAddresses(addresses);
+      const publicAddressObjects = addresses.public.filter((address) => address.tag === 'public');
+      // Extract just the r-address from the address object.
+      const publicAddresses = publicAddressObjects.map(addressObj => addressObj.address);
+      setPublicAddresses(publicAddresses);
     
       const provIdKey = address || fqn || null;
   
@@ -216,11 +225,8 @@ const ProvisionIdentityForm = () => {
     setLoading(false);
 
     if (!identityError) {
-      // Find a public address to provision the identity to.
-      const publicAddresses = addresses.public.filter((address) => address.tag === 'public');
-
+      dispatch(setPrimaryAddress(selectedPublicAddress));
       dispatch(setProvisioningInfo({
-        primaryAddress: publicAddresses[0].address,
         provAddress: provAddress,
         provSystemId: provSystemId,
         provFqn: provFqn,
@@ -296,36 +302,67 @@ const ProvisionIdentityForm = () => {
               <CircularProgress />
             </Box>
             :
-            <TextField
+            <Box
               sx={{
                 maxWidth: 560,
                 width: '100%',
-              }}
-              variant='outlined'
-              error={formError.error}
-              helperText={formError.description}
-              label={parentName ? 'VerusID name' : 'i-Address or VerusID name'}
-              value={assignedIdentity
-                ? friendlyNameMap[assignedIdentity]
-                  ? `${friendlyNameMap[assignedIdentity]}`
-                  : assignedIdentity
-                : identityToProvisionField}
-              mode='outlined'
-              disabled={assignedIdentity != null || loading}
-              onChange={event => {
-                const text = event.target.value;
-                if (assignedIdentity == null) {
-                  dispatch(setIdentityToProvisionField(text));
-                }
-              }}
-              InputProps={{
-                endAdornment: 
-                  <InputAdornment position='end'>
-                    {parentName ? parentName : ``}
-                  </InputAdornment>,
-              }}
-            >
-            </TextField>
+              }}>
+              <TextField fullWidth
+                variant='outlined'
+                error={formError.error}
+                helperText={formError.description}
+                label={parentName ? 'VerusID name' : 'i-Address or VerusID name'}
+                value={assignedIdentity
+                  ? friendlyNameMap[assignedIdentity]
+                    ? `${friendlyNameMap[assignedIdentity]}`
+                    : assignedIdentity
+                  : identityToProvisionField}
+                mode='outlined'
+                disabled={assignedIdentity != null || loading}
+                onChange={event => {
+                  const text = event.target.value;
+                  if (assignedIdentity == null) {
+                    dispatch(setIdentityToProvisionField(text));
+                  }
+                }}
+                InputProps={{
+                  endAdornment: 
+                    <InputAdornment position='end'>
+                      {parentName ? parentName : ``}
+                    </InputAdornment>,
+                }}
+              >
+              </TextField>
+              <Box
+                sx={{
+                  paddingTop: '10vh'
+                }}>
+                <FormControl fullWidth>
+                  <InputLabel id='address-select-label'>Select a Primary Address</InputLabel>
+                  <Select
+                    label='Select a Primary Address'
+                    value={selectedPublicAddress}
+                    displayEmpty
+                    style={{
+                      textAlign: 'start',
+                      paddingTop: 2,
+                    }}
+                    onChange={(e) => {
+                      return setSelectedPublicAddress(e.target.value);
+                    }}
+                  >
+                    {publicAddresses.map(address => {
+                      return (
+                        <MenuItem
+                          key={address}
+                          value={address}
+                        >{address}</MenuItem>
+                      );
+                    })}
+                  </Select>
+                </FormControl>
+              </Box>
+            </Box>
           }
         </div>
 
@@ -362,7 +399,7 @@ const ProvisionIdentityForm = () => {
             <Button
               variant='contained'
               color='primary'
-              disabled={loading}
+              disabled={loading || selectedPublicAddress === ''}
               onClick={() => submitData()}
               style={{
                 width: 120,

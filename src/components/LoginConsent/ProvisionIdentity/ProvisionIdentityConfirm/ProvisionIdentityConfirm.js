@@ -39,9 +39,9 @@ const ProvisionIdentityConfirm = () => {
   const { request } = useSelector((state) => state.rpc.loginConsentRequest);
   const provisioningInfo = useSelector((state) => state.provision.provisioningInfo);
   const identityToProvisionField = useSelector((state) => state.provision.identityToProvisionField);
+  const primaryAddress = useSelector((state) => state.provision.primaryAddress);
 
   const {
-    primaryAddress,
     provAddress,
     provSystemId,
     provFqn,

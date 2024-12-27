@@ -3,6 +3,7 @@
 */
 import {
   SET_IDENTITY_TO_PROVISION_FIELD,
+  SET_PRIMARY_ADDRESS,
   SET_PROVISONING_INFO,
   SET_PROVISONING_NAME,
   SET_PROVISONING_RESPONSE,
@@ -12,6 +13,7 @@ import {
 
 export const provision = (state = {
   identityToProvisionField: '',
+  primaryAddress: '',
   provisioningInfo: {},
   provisioningResponse: {},
   requestedFqn: '',
@@ -23,6 +25,11 @@ export const provision = (state = {
     return {
       ...state,
       identityToProvisionField: action.payload.idToProvisionField
+    };
+  case SET_PRIMARY_ADDRESS:
+    return {
+      ...state,
+      primaryAddress: action.payload.primaryAddress
     };
   case SET_PROVISONING_INFO:
     return {

@@ -1,5 +1,6 @@
 import {
   SET_IDENTITY_TO_PROVISION_FIELD,
+  SET_PRIMARY_ADDRESS,
   SET_PROVISONING_INFO,
   SET_PROVISONING_NAME,
   SET_PROVISONING_RESPONSE,
@@ -12,6 +13,15 @@ export const setIdentityToProvisionField = (idToProvisionField) => {
     type: SET_IDENTITY_TO_PROVISION_FIELD,
     payload: {
       idToProvisionField
+    }
+  };
+};
+
+export const setPrimaryAddress = (primaryAddress) => {
+  return {
+    type: SET_PRIMARY_ADDRESS,
+    payload: {
+      primaryAddress
     }
   };
 };

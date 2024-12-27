@@ -19,7 +19,7 @@ import {
 } from 'verus-typescript-primitives';
 import { loadIdentities } from '../../../../rpc/calls/identities';
 import { verifyIdProvisioningResponse } from '../../../../rpc/calls/verifyIdProvisioningResponse';
-import { setIdentityToProvisionField } from '../../../../redux/reducers/provision/provision.actions';
+import { setIdentityToProvisionField, setPrimaryAddress } from '../../../../redux/reducers/provision/provision.actions';
 
 export const checkForProvisioningStatus = async (
   infoUri,
@@ -141,8 +141,9 @@ const ProvisionIdentityResult = () => {
   ); 
 
   const finishSend = () => {
-    // Clear the chosen name after leaving.
+    // Clear the chosen name and address after leaving.
     dispatch(setIdentityToProvisionField(''));
+    dispatch(setPrimaryAddress(''));
     dispatch(setNavigationPath(SELECT_LOGIN_ID));
   };
 
