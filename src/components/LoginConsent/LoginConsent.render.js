@@ -1,7 +1,13 @@
 import React from 'react';
 import {
   CONSENT_TO_SCOPE,
-  EXTERNAL_ACTION, LOADING_DISPLAY, REDIRECT, SELECT_LOGIN_ID
+  EXTERNAL_ACTION,
+  LOADING_DISPLAY,
+  REDIRECT,
+  SELECT_LOGIN_ID,
+  PROVISIONING_FORM,
+  PROVISIONING_CONFIRM,
+  PROVISIONING_RESULT,
 } from '../../utils/constants'
 import ExternalAction from './ExternalAction/ExternalAction'
 import Loading from '../Loading';
@@ -10,6 +16,9 @@ import Login from './Login/Login';
 import { setError } from '../../redux/reducers/error/error.actions';
 import Redirect from './Redirect/Redirect';
 import Consent from './Consent/Consent';
+import ProvisionIdentityForm from './ProvisionIdentity/ProvisionIdentityForm/ProvisionIdentityForm';
+import ProvisionIdentityConfirm from './ProvisionIdentity/ProvisionIdentityConfirm/ProvisionIdentityConfirm';
+import ProvisionIdentityResult from './ProvisionIdentity/ProvisionIdentityResult/ProvisionIdentityResult';
 
 export const LoginConsentRender = function() {
   const COMPONENT_PROPS = {
@@ -40,6 +49,21 @@ export const LoginConsentRender = function() {
     ),
     [CONSENT_TO_SCOPE]: (
       <Consent 
+        {...COMPONENT_PROPS}
+      />
+    ),
+    [PROVISIONING_FORM]: (
+      <ProvisionIdentityForm
+        {...COMPONENT_PROPS}
+      />
+    ),
+    [PROVISIONING_CONFIRM]: (
+      <ProvisionIdentityConfirm
+        {...COMPONENT_PROPS}
+      />
+    ),
+    [PROVISIONING_RESULT]: (
+      <ProvisionIdentityResult
         {...COMPONENT_PROPS}
       />
     ),

@@ -20,13 +20,17 @@ export const API_CLOSE_PLUGIN = 'plugin/close'
 export const API_ACTIVATE_COIN = 'coins/activate'
 export const API_CHECK_ZCASH_PARAMS = 'zcashparamsexist'
 export const API_DL_ZCASH_PARAMS = 'zcparamsdl'
+export const API_GET_ADDRESSES = "get_addresses"
 export const API_GET_BLOCK = 'get_block'
 export const API_GET_CURRENCY = 'get_currency'
 export const API_GET_IDENTITIES = 'get_identities'
 export const API_GET_IDENTITY = 'get_identity'
 export const API_GET_SIGNATURE_INFO = 'get_signature_info'
+export const API_GET_VDXF_ID = 'get_vdxf_id'
 export const API_VERIFY_LOGIN_REQUEST = 'verusid/login/verify_request'
 export const API_SIGN_LOGIN_RESPONSE = 'verusid/login/sign_response'
+export const API_VERIFY_ID_PROVISIONING_RESPONSE = 'verusid/provision/verify_id_provisioning_response'
+export const API_SIGN_ID_PROVISIONING_REQUEST = 'verusid/provision/sign_id_provisioning_request'
 export const API_GET_CHAIN_INFO = 'get_info'
 export const API_SAVE_USERS = 'users/save'
 export const API_ENCRYPT_KEY = 'encryptkey'
@@ -57,6 +61,9 @@ export const SELECT_LOGIN_ID = "SELECT_LOGIN_ID"
 export const CONSENT_TO_SCOPE = "CONSENT_TO_SCOPE"
 export const LOADING_DISPLAY = "LOADING_DISPLAY"
 export const REDIRECT = "REDIRECT"
+export const PROVISIONING_FORM = "PROVISIONING_FORM"
+export const PROVISIONING_CONFIRM = "PROVISIONING_CONFIRM"
+export const PROVISIONING_RESULT = "PROVISIONING_RESULT"
 
 export const ZC_PARAMS = {
   DOWNLOADING_ZCASH_KEYS: 'Downloading Zcash keys',

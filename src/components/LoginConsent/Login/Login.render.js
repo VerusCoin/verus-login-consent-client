@@ -44,7 +44,8 @@ export const LoginRender = function () {
               padding: 8,
             }}
           >
-            {`Select an Identity`}
+            {`Select an Identity` +
+              (this.canProvision ? " or Request an Identity" : "")}
           </div>
         </div>
         <div
@@ -55,6 +56,7 @@ export const LoginRender = function () {
             alignItems: "flex-start",
             justifyContent: "center",
             flex: 1,
+            paddingTop: 2,
           }}
         >
           <FormControl style={{ maxWidth: 560, flex: 1 }}>
@@ -87,6 +89,29 @@ export const LoginRender = function () {
               })}
             </Select>
           </FormControl>
+        </div>
+        <div
+           style={{
+            width: "100%",
+            display: "flex",
+            flexDirection: "column-reverse",
+            alignItems: "center",
+            justifyContent: "flex-end",
+            flex: 1,
+          }}
+        >
+          {this.canProvision && <Button
+            variant="contained"
+            color="primary"
+            disabled={loading}
+            onClick={() => this.tryProvision()}
+            style={{
+              width: 240,
+              padding: 8,
+            }}
+          >
+            {"Request a new VerusID"}
+          </Button>}
         </div>
         <div
           style={{
