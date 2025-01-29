@@ -38,7 +38,7 @@ export const ConsentRender = function () {
             justifyContent: "center",
           }}
         >
-          {this.displayName + "@"}{` is requesting login with VerusID`}
+          {signedBy.fullyqualifiedname}{` is requesting login with VerusID`}
         </div>
 
           <RequestCard

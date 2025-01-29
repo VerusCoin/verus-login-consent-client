@@ -11,10 +11,6 @@ class Consent extends React.Component {
   constructor(props) {
     super(props);
     const requestedPermissions = props.loginConsentRequest.request.challenge.requested_access;
-    const chainName = props.loginConsentRequest.request.chainName;
-    const signedBy = props.loginConsentRequest.request.signedBy;
-    const friendlyName = signedBy.friendlyname;
-    this.displayName = friendlyName.substring(0, friendlyName.lastIndexOf("." + chainName));
 
     let permissionsDescriptions = [];
 

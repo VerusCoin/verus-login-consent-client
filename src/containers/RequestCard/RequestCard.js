@@ -31,12 +31,11 @@ export function RequestCard(props) {
   const revocationIdentity = props.revocationIdentity
   const recoveryIdentity = props.recoveryIdentity
   const signedBy = props.signedBy
-  const displayName = props.displayName
   const time = props.time
   const permissions = props.permissions
   const height = props.height
 
-  const requestedByDescriptor = `${displayName}@ (${signedBy.identity.identityaddress})`
+  const requestedByDescriptor = `${signedBy.fullyqualifiedname} (${signedBy.identity.identityaddress})`
   const systemIdentityDescriptor = `${chainName} (${systemId})`
   const revocationIdentityDescriptor = `${revocationIdentity.friendlyname} (${revocationIdentity.identity.identityaddress})`
   const recoveryIdentityDescriptor = `${recoveryIdentity.friendlyname} (${recoveryIdentity.identity.identityaddress})`
