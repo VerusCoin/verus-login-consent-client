@@ -47,7 +47,6 @@ export const ConsentRender = function () {
           signedBy={signedBy}
           revocationIdentity={signingRevocationIdentity}
           recoveryIdentity={signingRecoveryIdentity}
-          displayName={this.displayName}
           time={time}
           permissions={this.permissionsText}
           height={"54vh"}
