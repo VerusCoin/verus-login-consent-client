@@ -4,11 +4,11 @@ import { RequestCard } from "../../../containers/RequestCard/RequestCard";
 import { VerusIdLogo } from "../../../images";
 
 export const ConsentRender = function () {
-  const { loading } = this.state
-  const { loginConsentRequest } = this.props
-  const { request } = loginConsentRequest
-  const { sigBlockInfo, signedBy, signingRevocationIdentity, signingRecoveryIdentity } = request
-  const { time } = sigBlockInfo
+  const { loading } = this.state;
+  const { loginConsentRequest } = this.props;
+  const { request } = loginConsentRequest;
+  const { sigBlockInfo, signedBy, signingRevocationIdentity, signingRecoveryIdentity } = request;
+  const { time } = sigBlockInfo;
 
   return (
     <div
@@ -41,18 +41,18 @@ export const ConsentRender = function () {
           {signedBy.fullyqualifiedname}{` is requesting login with VerusID`}
         </div>
 
-          <RequestCard
-            chainName={request.chainName}
-            systemId={request.system_id}
-            signedBy={signedBy}
-            revocationIdentity={signingRevocationIdentity}
-            recoveryIdentity={signingRecoveryIdentity}
-            displayName={this.displayName}
-            time={time}
-            permissions={this.permissionsText}
-            height={"54vh"}
-          >
-          </RequestCard>
+        <RequestCard
+          chainName={request.chainName}
+          systemId={request.system_id}
+          signedBy={signedBy}
+          revocationIdentity={signingRevocationIdentity}
+          recoveryIdentity={signingRecoveryIdentity}
+          displayName={this.displayName}
+          time={time}
+          permissions={this.permissionsText}
+          height={"54vh"}
+        >
+        </RequestCard>
         <div
           style={{
             width: "100%",

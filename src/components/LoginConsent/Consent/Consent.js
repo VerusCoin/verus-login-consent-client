@@ -25,7 +25,7 @@ class Consent extends React.Component {
 
     this.state = {
       loading: false
-    }
+    };
 
     this.tryLogin = this.tryLogin.bind(this);
     this.cancel = this.cancel.bind(this);
@@ -34,23 +34,23 @@ class Consent extends React.Component {
 
   tryLogin() {
     this.setState({ loading: true }, async () => {
-      const { request } = this.props.loginConsentRequest
-      const userActions = await checkAndUpdateIdentities(request.chainTicker)
-      userActions.map(action => this.props.dispatch(action))
+      const { request } = this.props.loginConsentRequest;
+      const userActions = await checkAndUpdateIdentities(request.chainTicker);
+      userActions.map(action => this.props.dispatch(action));
 
       if (this.props.canLoginOrGiveConsent()) {
         this.props.dispatch(setNavigationPath(SELECT_LOGIN_ID));
       } else {
-        this.props.dispatch(setExternalAction(EXTERNAL_CHAIN_START))
+        this.props.dispatch(setExternalAction(EXTERNAL_CHAIN_START));
         this.props.dispatch(setNavigationPath(EXTERNAL_ACTION));
       }
-    })
+    });
   }
 
   cancel() {
     this.setState({ loading: true }, async () => {
-      await this.props.completeLoginConsent()
-    })
+      await this.props.completeLoginConsent();
+    });
   }
 
   render() {
