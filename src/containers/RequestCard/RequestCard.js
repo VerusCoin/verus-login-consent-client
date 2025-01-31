@@ -22,24 +22,24 @@ function RequestIdentityItem({field, value}) {
         sx={{textAlign:'right', color: "#878787"}}
       />
     </ListItem>
-  )
+  );
 }
 
 export function RequestCard(props) {
-  const chainName = props.chainName
-  const systemId = props.systemId
-  const revocationIdentity = props.revocationIdentity
-  const recoveryIdentity = props.recoveryIdentity
-  const signedBy = props.signedBy
-  const displayName = props.displayName
-  const time = props.time
-  const permissions = props.permissions
-  const height = props.height
+  const chainName = props.chainName;
+  const systemId = props.systemId;
+  const revocationIdentity = props.revocationIdentity;
+  const recoveryIdentity = props.recoveryIdentity;
+  const signedBy = props.signedBy;
+  const signerConvertedFqn = props.signerConvertedFqn;
+  const time = props.time;
+  const permissions = props.permissions;
+  const height = props.height;
 
-  const requestedByDescriptor = `${displayName}@ (${signedBy.identity.identityaddress})`
-  const systemIdentityDescriptor = `${chainName} (${systemId})`
-  const revocationIdentityDescriptor = `${revocationIdentity.friendlyname} (${revocationIdentity.identity.identityaddress})`
-  const recoveryIdentityDescriptor = `${recoveryIdentity.friendlyname} (${recoveryIdentity.identity.identityaddress})`
+  const requestedByDescriptor = `${signerConvertedFqn} (${signedBy.identity.identityaddress})`;
+  const systemIdentityDescriptor = `${chainName} (${systemId})`;
+  const revocationIdentityDescriptor = `${revocationIdentity.friendlyname} (${revocationIdentity.identity.identityaddress})`;
+  const recoveryIdentityDescriptor = `${recoveryIdentity.friendlyname} (${recoveryIdentity.identity.identityaddress})`;
 
   const [openIdentity, setOpenIdentity] = React.useState(false);
 
@@ -49,12 +49,12 @@ export function RequestCard(props) {
 
   return (
     <Card square sx={{
-        marginTop:1,
-        marginBottom:1,
-        width: '100%',
-        overflowY: 'scroll',
-        maxHeight: height,
-      }}> 
+      marginTop:1,
+      marginBottom:1,
+      width: '100%',
+      overflowY: 'scroll',
+      maxHeight: height,
+    }}> 
       <List>
         <ListItemButton divider onClick={handleIdentityClick}>
           <ListItemText primary="Requested by" disableTypography sx={{ fontWeight: 'bold', pr:4}}/>
@@ -117,5 +117,5 @@ export function RequestCard(props) {
         </ListItem>
       </List>
     </Card> 
-  )
+  );
 }
