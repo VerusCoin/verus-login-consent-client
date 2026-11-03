@@ -22,7 +22,8 @@ const UNSIGNED_DETAIL_TYPES = [
 export async function checkGenericRequest(
   chainId: string,
   request: GenericRequest,
-  getState: () => RootState
+  getState: () => RootState,
+  provisioningCapability: string | null = null
 ) {
   if (!request.isValidVersion()) {
     throw new Error(`The request version ${request.version} is unsupported.`);
@@ -51,7 +52,7 @@ export async function checkGenericRequest(
     }
   } else {
     // Verify the signature of the generic request.
-    const verificationResult = await verifyGenericRequest(chainId, request);
+    const verificationResult = await verifyGenericRequest(chainId, request, provisioningCapability);
     if (!verificationResult.verified) {
       throw new Error(verificationResult.message);
     }

@@ -10,20 +10,31 @@ export type DeeplinkData = LoginConsentRequest | VerusPayInvoice | GenericReques
 export interface DeeplinkState {
   id: string;
   data: DeeplinkData | null;
+  // Verus Desktop's ticket for provisioning an identity from this request, or null.
+  provisioningCapability: string | null;
 }
 
 const initialState: DeeplinkState = {
   id: '',
   data: null,
+  provisioningCapability: null,
 };
 
 const deeplinkSlice = createSlice({
   name: 'deeplink',
   initialState,
   reducers: {
-    setDeeplinkData: (state, action: PayloadAction<{id: string; data: DeeplinkData}>) => {
+    setDeeplinkData: (
+      state,
+      action: PayloadAction<{
+        id: string;
+        data: DeeplinkData;
+        provisioningCapability?: string | null;
+      }>
+    ) => {
       state.id = action.payload.id;
       state.data = action.payload.data;
+      state.provisioningCapability = action.payload.provisioningCapability ?? null;
     },
   },
 });

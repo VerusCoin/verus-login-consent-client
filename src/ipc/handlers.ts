@@ -24,7 +24,7 @@ import {
   IPC_LOGIN_CONSENT_REQUEST_METHOD,
   IPC_ORIGIN_DEV,
   IPC_ORIGIN_DEV_LOCALHOST,
-  IPC_ORIGIN_PRODUCTION,
+  IPC_PACKAGED_ENTRY_PATH,
   IPC_PUSH_MESSAGE,
 } from '#/utils/constants';
 import {RPC_PASSWORD, RPC_PORT} from '#/utils/mocks';
@@ -65,6 +65,7 @@ const updateReduxStore = (data: IpcPushMessage): void => {
     setDeeplinkData({
       id: data.data.deeplink.id,
       data: deeplinkData,
+      provisioningCapability: data.data.provisioning_capability ?? null,
     })
   );
 
@@ -96,14 +97,35 @@ const setupRpcConfig = (data: IpcInitMessage | null = null): void => {
   }
 };
 
+// Same rule as Verus Desktop's isAllowedIpcEvent: only messages posted to this window by the
+// preload, from the dev server or from the packaged page on Desktop's loopback server.
+export const isAllowedIpcEvent = (event: MessageEvent): boolean => {
+  if (event == null || typeof event.data !== 'string') return false;
+  if (MOCK_IPC) {
+    return event.origin === IPC_ORIGIN_DEV || event.origin === IPC_ORIGIN_DEV_LOCALHOST;
+  }
+  if (typeof window === 'undefined' || event.source !== window) return false;
+
+  if (DEVMODE) {
+    return event.origin === IPC_ORIGIN_DEV || event.origin === IPC_ORIGIN_DEV_LOCALHOST;
+  }
+
+  const {location} = window;
+  const port = Number(location.port);
+  return (
+    event.origin === location.origin &&
+    location.protocol === 'http:' &&
+    location.hostname === '127.0.0.1' &&
+    Number.isInteger(port) &&
+    port > 0 &&
+    port <= 65535 &&
+    location.pathname === IPC_PACKAGED_ENTRY_PATH
+  );
+};
+
 export const handleIpc = async (event: MessageEvent): Promise<void> => {
   try {
-    if (
-      typeof event.data === 'string' &&
-      ((!DEVMODE && event.origin === IPC_ORIGIN_PRODUCTION) ||
-        (DEVMODE && event.origin === IPC_ORIGIN_DEV) ||
-        (DEVMODE && event.origin === IPC_ORIGIN_DEV_LOCALHOST))
-    ) {
+    if (isAllowedIpcEvent(event)) {
       const data = JSON.parse(event.data) as IpcMessage;
 
       if (data.type === IPC_INIT_MESSAGE) {

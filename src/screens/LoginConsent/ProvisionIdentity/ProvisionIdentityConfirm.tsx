@@ -7,7 +7,6 @@ import Divider from '@mui/material/Divider';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-import axios from 'axios';
 import {
   fromBase58Check,
   GenericRequest,
@@ -43,6 +42,7 @@ import {
 import {RootState} from '#/redux/store';
 import {getIdentity} from '#/rpc/calls/getIdentity';
 import {getVdxfId} from '#/rpc/calls/getVdxfId';
+import {submitIdProvisioningRequest} from '#/rpc/calls/provisioningTransport';
 import {signIdProvisioningRequest} from '#/rpc/calls/signIdProvisioningRequest';
 import {verifyIdProvisioningResponse} from '#/rpc/calls/verifyIdProvisioningResponse';
 import {PROVISIONING_FORM, PROVISIONING_RESULT} from '#/utils/constants';
@@ -101,6 +101,9 @@ const handleProvisioningResponse = async (
 const ProvisionIdentityConfirm: React.FC = () => {
   const dispatch = useAppDispatch();
   const deeplinkData = useSelector((state: RootState) => state.deeplink.data);
+  const provisioningCapability = useSelector(
+    (state: RootState) => state.deeplink.provisioningCapability
+  );
   const chainId = useSelector((state: RootState) => state.chainMetadata.chainId);
   const provisioningInfo = useSelector((state: RootState) => state.provision.provisioningInfo);
   const identityToProvisionField = useSelector(
@@ -183,8 +186,13 @@ const ProvisionIdentityConfirm: React.FC = () => {
           );
 
       if (provWebhook == null) throw new Error('No endpoint for ID provisioning');
+      // Verus Desktop only signs and sends provisioning for the request it gave this ticket to.
+      if (provisioningCapability == null) {
+        throw new Error(
+          'The secure provisioning session is unavailable. Please restart the request.'
+        );
+      }
 
-      const webhookUrl = provWebhook.data;
       const identity = identityToProvisionField ? identityToProvisionField.trim() : '';
 
       let identityName: string;
@@ -231,15 +239,19 @@ const ProvisionIdentityConfirm: React.FC = () => {
       const signedRequest = await signIdProvisioningRequest(
         chainId,
         provisionRequest,
-        primaryAddress
+        primaryAddress,
+        provisioningCapability
       );
 
-      const res = await axios.post(webhookUrl, signedRequest);
-      const provisionResponse = res.data;
+      // Desktop posts it to the webhook named in the original request.
+      const provisionResponse = await submitIdProvisioningRequest(
+        provisioningCapability,
+        signedRequest
+      );
       await handleProvisioningResponse(provisionResponse, nameId, requestedFqn);
 
       const provName = (await getIdentity(chainId, signerId)).identity.name;
-      onSuccess(res.data, requestedFqn, provName, nameId);
+      onSuccess(provisionResponse, requestedFqn, provName, nameId);
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : String(e);
       onError(message);

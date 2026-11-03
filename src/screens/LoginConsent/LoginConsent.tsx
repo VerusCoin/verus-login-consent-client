@@ -232,9 +232,11 @@ export class LoginConsent extends React.Component<LoginConsentProps, LoginConsen
   // it. If any problems are found, an error is thrown.
   async checkRequest(req: DeeplinkData): Promise<void> {
     const chainId = this.props.chainId;
+    // Verifying with Desktop's ticket is what later lets this request provision an identity.
+    const {provisioningCapability} = store.getState().deeplink;
 
     if (req instanceof LoginConsentRequest) {
-      await checkLoginConsentRequest(chainId, req);
+      await checkLoginConsentRequest(chainId, req, provisioningCapability);
       const signingIdentity = await getIdentity(chainId, req.signing_id);
       await this.fetchAndStoreSignatureInfo(
         chainId,
@@ -244,7 +246,7 @@ export class LoginConsent extends React.Component<LoginConsentProps, LoginConsen
         req.challenge.created_at
       );
     } else if (req instanceof GenericRequest) {
-      await checkGenericRequest(chainId, req, store.getState);
+      await checkGenericRequest(chainId, req, store.getState, provisioningCapability);
       if (req.isSigned()) {
         const signingId = req.signature.identityID.toIAddress();
         const signatureString = req.signature.signatureAsVch.toString('base64');

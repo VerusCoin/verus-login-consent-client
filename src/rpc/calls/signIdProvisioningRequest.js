@@ -3,8 +3,9 @@ import { getApiData } from "../callCreator";
 
 /**
  * Signs an identity Provisioning request with a given r-address.
+ * Verus Desktop only signs it with the capability it gave this request's window.
  */
-export const signIdProvisioningRequest = async (chainId, request, raddress) => {
+export const signIdProvisioningRequest = async (chainId, request, raddress, capability) => {
   try {
     const res = await getApiData(
       NATIVE,
@@ -13,6 +14,7 @@ export const signIdProvisioningRequest = async (chainId, request, raddress) => {
         chainTicker: chainId,
         request: request,
         raddress: raddress,
+        capability,
       },
       POST,
       true

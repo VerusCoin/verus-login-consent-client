@@ -23,7 +23,7 @@ export const getValidityKey = (data) => {
   hash.update(Buffer.from(state.rpc.appId));
 
   // Store time used to avoid conflicts
-  addCalledTime(time);
+  store.dispatch(addCalledTime(time));
 
   // Return validity key and time used
   return {

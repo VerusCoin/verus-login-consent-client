@@ -6,7 +6,6 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
-import axios from 'axios';
 import {
   GenericRequest,
   LOGIN_CONSENT_PROVISIONING_ERROR_KEY_CREATION_FAILED,
@@ -35,6 +34,7 @@ import {
 } from '#/redux/reducers/provision/provisionSlice';
 import {RootState} from '#/redux/store';
 import {loadIdentities} from '#/rpc/calls/identities';
+import {getIdProvisioningStatus} from '#/rpc/calls/provisioningTransport';
 import {verifyIdProvisioningResponse} from '#/rpc/calls/verifyIdProvisioningResponse';
 import {PROVISIONING_FORM, SELECT_LOGIN_ID} from '#/utils/constants';
 import {useInterval} from '#/utils/interval';
@@ -51,6 +51,7 @@ type SetCheckForProvisioningStatus = React.Dispatch<React.SetStateAction<boolean
 
 export const checkForProvisioningStatus = async (
   infoUri: string | undefined,
+  provisioningCapability: string | null,
   signerId: string,
   setCheckForId: SetCheckForId,
   setProvisioningError: SetProvisioningError,
@@ -68,8 +69,14 @@ export const checkForProvisioningStatus = async (
   }
 
   try {
-    const res = await axios.get(infoUri);
-    const provisioningResponse = new LoginConsentProvisioningResponse(res.data);
+    if (provisioningCapability == null) {
+      throw new Error(
+        'The secure provisioning session is unavailable. Please restart the request.'
+      );
+    }
+    // Desktop reads the status URI the provisioning service returned for this ticket.
+    const response = await getIdProvisioningStatus(provisioningCapability, infoUri);
+    const provisioningResponse = new LoginConsentProvisioningResponse(response);
     const verificationCheck = await verifyIdProvisioningResponse(provisioningResponse);
     const verified = verificationCheck.verified;
 
@@ -126,6 +133,9 @@ const ProvisionIdentityResult: React.FC = () => {
   const dispatch = useAppDispatch();
 
   const deeplinkData = useSelector((state: RootState) => state.deeplink.data);
+  const provisioningCapability = useSelector(
+    (state: RootState) => state.deeplink.provisioningCapability
+  );
   const chainId = useSelector((state: RootState) => state.chainMetadata.chainId);
   const provisioningResponse = useSelector(
     (state: RootState) => state.provision.provisioningResponse
@@ -159,6 +169,7 @@ const ProvisionIdentityResult: React.FC = () => {
     async () =>
       await checkForProvisioningStatus(
         provisioningResponse?.decision?.result?.info_uri,
+        provisioningCapability,
         signerId,
         setCheckForId,
         setProvisioningError,

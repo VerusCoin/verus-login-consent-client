@@ -31,6 +31,8 @@ export interface IpcInitData {
 export interface IpcPushData {
   origin_app_info: OriginAppInfo;
   deeplink: DeeplinkPayload;
+  // Verus Desktop's one-time ticket, only for a request that asks to provision an identity.
+  provisioning_capability?: string | null;
 }
 
 export interface IpcInitMessage {

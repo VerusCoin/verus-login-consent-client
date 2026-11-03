@@ -3,7 +3,11 @@ import {GenericRequest} from 'verus-typescript-primitives';
 import {API_VERIFY_GENERIC_REQUEST, NATIVE, POST} from '../../utils/constants';
 import {getApiData} from '../callCreator';
 
-export const verifyGenericRequest = async (chainId: string, request: GenericRequest) => {
+export const verifyGenericRequest = async (
+  chainId: string,
+  request: GenericRequest,
+  capability: string | null = null
+) => {
   try {
     const res = await getApiData(
       NATIVE,
@@ -11,6 +15,7 @@ export const verifyGenericRequest = async (chainId: string, request: GenericRequ
       {
         chainTicker: chainId,
         request: request.toBuffer().toString('hex'),
+        capability,
       },
       POST,
       true

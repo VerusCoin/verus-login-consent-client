@@ -45,6 +45,9 @@ export const API_EXECUTE_APP_ENCRYPTION_REQUEST = 'verusid/generic/execute_app_e
 export const API_ENCRYPT_APP_ENCRYPTION_RESPONSE =
   'verusid/generic/encrypt_app_encryption_response';
 export const API_SIGN_ID_PROVISIONING_REQUEST = 'verusid/provision/sign_id_provisioning_request';
+export const API_SUBMIT_ID_PROVISIONING_REQUEST =
+  'verusid/provision/submit_id_provisioning_request';
+export const API_GET_ID_PROVISIONING_STATUS = 'verusid/provision/get_id_provisioning_status';
 export const API_SIGN_IDENTITY_UPDATE_RESPONSE = 'verusid/identity/sign_identity_update_response';
 export const API_SIGN_LOGIN_RESPONSE = 'verusid/login/sign_response';
 export const API_VERIFY_GENERIC_REQUEST = 'verusid/generic/verify_generic_request';
@@ -116,7 +119,8 @@ export const ADDCOIN_DELAY = 500;
 // ipc
 export const IPC_ORIGIN_DEV = 'http://127.0.0.1:3001';
 export const IPC_ORIGIN_DEV_LOCALHOST = 'http://localhost:3001';
-export const IPC_ORIGIN_PRODUCTION = 'file://';
+// Verus Desktop serves packaged built-ins from its loopback API server at this path.
+export const IPC_PACKAGED_ENTRY_PATH = '/builtin/verus-login-consent-client/index.html';
 export const IPC_INIT_MESSAGE = 'init';
 export const IPC_PUSH_MESSAGE = 'push';
 export const IPC_LOGIN_CONSENT_REQUEST_METHOD = 'VERUS_LOGIN_CONSENT_REQUEST';
