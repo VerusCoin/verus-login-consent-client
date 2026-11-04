@@ -17,7 +17,7 @@ import {Identity} from '#/types/identity';
 
 export async function prepareAppEncryptionDetail(ordinal: OrdinalVDXFObject): Promise<void> {
   if (!(ordinal instanceof AppEncryptionRequestOrdinalVDXFObject)) {
-    throw new Error('Detail is not an AppEncryptionRequestOrdinalVDXFObject.');
+    throw new Error('Ordinal is not an AppEncryptionRequestOrdinalVDXFObject.');
   }
 
   const detail: AppEncryptionRequestDetails = ordinal.data;

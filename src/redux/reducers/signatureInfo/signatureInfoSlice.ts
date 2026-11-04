@@ -29,14 +29,17 @@ const signatureInfoSlice = createSlice({
         signingRevocationIdentity?: Identity;
         signingRecoveryIdentity?: Identity;
       }>
-    ) => {
-      if (action.payload.signedBy !== undefined) state.signedBy = action.payload.signedBy;
-      if (action.payload.sigBlockInfo !== undefined)
-        state.sigBlockInfo = action.payload.sigBlockInfo;
-      if (action.payload.signingRevocationIdentity !== undefined)
-        state.signingRevocationIdentity = action.payload.signingRevocationIdentity;
-      if (action.payload.signingRecoveryIdentity !== undefined)
-        state.signingRecoveryIdentity = action.payload.signingRecoveryIdentity;
+    ) : SignatureInfoState => {
+      const current = state as unknown as SignatureInfoState;
+      const {signedBy, sigBlockInfo, signingRevocationIdentity, signingRecoveryIdentity} =
+        action.payload;
+
+      return {
+        signedBy: signedBy ?? current.signedBy,
+        sigBlockInfo: sigBlockInfo ?? current.sigBlockInfo,
+        signingRevocationIdentity: signingRevocationIdentity ?? current.signingRevocationIdentity,
+        signingRecoveryIdentity: signingRecoveryIdentity ?? current.signingRecoveryIdentity,
+      };
     },
   },
 });

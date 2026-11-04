@@ -14,9 +14,9 @@ const appOrDelegatedIdSlice = createSlice({
   name: 'appOrDelegatedId',
   initialState,
   reducers: {
-    setAppOrDelegatedId: (state, action: PayloadAction<Identity>) => {
-      state.identity = action.payload;
-    },
+    setAppOrDelegatedId: (_state, action: PayloadAction<Identity>) => ({
+      identity : action.payload,
+    }),
     clearAppOrDelegatedId: state => {
       state.identity = null;
     },

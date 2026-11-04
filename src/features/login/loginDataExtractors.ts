@@ -4,6 +4,7 @@ import {
   ID_ADDRESS_VDXF_KEY,
   LOGIN_CONSENT_ID_PROVISIONING_WEBHOOK_VDXF_KEY,
   LoginConsentRequest,
+  ProvisionIdentityDetailsOrdinalVDXFObject,
   RecipientConstraint,
 } from 'verus-typescript-primitives';
 
@@ -17,6 +18,7 @@ export interface LoginData {
   canProvision: boolean;
   identitySubjects?: string[];
   filterIdentities: (identities: Identity[]) => Identity[];
+  provisioningDetailIndex?: number;
 }
 
 /*
@@ -105,14 +107,21 @@ export const extractLoginDataV2 = (
     throw new Error('Detail is not an AuthenticationRequestOrdinalVDXFObject');
   }
 
-  // TODO: Implement provisioning detection for v2 when provisioning detail type is defined
-  const canProvision = false;
-
   const authRequestDetail = ordinalWrapper.data;
 
   const recipientConstraints = authRequestDetail?.recipientConstraints ?? [];
   const allowedSystems = getAllowedSystems(recipientConstraints);
   const requiredIDs = getRequiredIDs(recipientConstraints);
+
+  let canProvision = false;
+  let provisioningDetailIndex: number;
+
+  if (requiredIDs.size <= 0) {
+    provisioningDetailIndex = request.details.findIndex(ordinal => {
+      return ordinal instanceof ProvisionIdentityDetailsOrdinalVDXFObject;
+    });
+    canProvision = provisioningDetailIndex !== -1;
+  }
 
   const filterIdentities = (identitiesToFilter: Identity[]): Identity[] => {
     if (requiredIDs.size === 0 && allowedSystems.size === 0) {
@@ -138,5 +147,6 @@ export const extractLoginDataV2 = (
   return {
     canProvision,
     filterIdentities,
+    provisioningDetailIndex,
   };
 };

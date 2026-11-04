@@ -25,7 +25,7 @@ export async function prepareAuthenticationDetail(
   getState: () => RootState
 ): Promise<void> {
   if (!(ordinal instanceof AuthenticationRequestOrdinalVDXFObject)) {
-    throw new Error('Detail is not an AuthenticationRequestOrdinalVDXFObject.');
+    throw new Error('Ordinal is not an AuthenticationRequestOrdinalVDXFObject.');
   }
 
   const authDetail = ordinal.data;

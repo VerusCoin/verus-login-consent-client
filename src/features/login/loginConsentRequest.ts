@@ -4,8 +4,12 @@ import {verifyLoginRequest} from '#/rpc/calls/verifyRequest';
 import {SUPPORTED_CREDENTIALS, SUPPORTED_SCOPES} from '#/utils/constants';
 
 // Checks a login consent request for validity and throws errors for any issues found
-export const checkLoginConsentRequest = async (chainId: string, request: LoginConsentRequest) => {
-  const verificationCheck = await verifyLoginRequest(chainId, request);
+export const checkLoginConsentRequest = async (
+  chainId: string,
+  request: LoginConsentRequest,
+  provisioningCapability: string | null = null
+) => {
+  const verificationCheck = await verifyLoginRequest(chainId, request, provisioningCapability);
   if (!verificationCheck.verified) {
     throw new Error(verificationCheck.message);
   }

@@ -23,7 +23,7 @@ export async function prepareIdentityUpdateDetail(
   getState: () => RootState
 ): Promise<void> {
   if (!(ordinal instanceof IdentityUpdateRequestOrdinalVDXFObject)) {
-    throw new Error('Unable to handle non-identity update detail.');
+    throw new Error('Ordinal is not an IdentityUpdateRequestOrdinalVDXFObject.');
   }
 
   const detail = ordinal.data;

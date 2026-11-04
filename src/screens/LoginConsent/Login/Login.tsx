@@ -30,6 +30,7 @@ import {
   navigateGenericRequest,
   setExternalAction,
   setNavigationPath,
+  startDetour,
 } from '#/redux/reducers/navigation/navigationSlice';
 import {RootState} from '#/redux/store';
 import {getCredentialsByScope} from '#/rpc/calls/getCredentials';
@@ -59,6 +60,7 @@ const Login = (props: LoginProps) => {
     (state: RootState) => state.identity.activeIdentity
   ) as Identity;
   const deeplinkData = useSelector((state: RootState) => state.deeplink.data);
+  const provisionedId = useSelector((state: RootState) => state.provision.requestedId);
   const currentDetailIndex =
     useSelector((state: RootState) => state.navigation.currentDetailIndex) || 0;
 
@@ -73,6 +75,7 @@ const Login = (props: LoginProps) => {
     hasRequestedCredentials = false,
     canProvision,
     filterIdentities,
+    provisioningDetailIndex,
   } = loginData;
 
   const filteredIdentities = filterIdentities(identities);
@@ -82,7 +85,14 @@ const Login = (props: LoginProps) => {
 
   const isLastDetailInRequest =
     isGenericRequest && isLastDetail(deeplinkData as GenericRequest, currentDetailIndex);
-  const continueButtonText = isLastDetailInRequest ? 'Finish' : 'Continue';
+  // Only after provisioning: the new ID is selected and the next press signs the login with it.
+  const isSigningWithProvisionedId =
+    provisionedId !== '' && activeIdentity?.identity?.identityaddress === provisionedId;
+  const continueButtonText = isSigningWithProvisionedId
+    ? 'Finish and Sign'
+    : isLastDetailInRequest
+      ? 'Finish'
+      : 'Continue';
   const continueButtonColor = isLastDetailInRequest ? 'primary' : 'success';
 
   const cancel = (): void => {
@@ -151,7 +161,11 @@ const Login = (props: LoginProps) => {
   };
 
   const tryProvision = (): void => {
-    dispatch(setNavigationPath(PROVISIONING_FORM));
+    if (isGenericRequest) {
+      dispatch(startDetour(provisioningDetailIndex));
+    } else {
+      dispatch(setNavigationPath(PROVISIONING_FORM));
+    }
   };
 
   const selectId = (address: string): void => {

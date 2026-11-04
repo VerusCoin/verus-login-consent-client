@@ -23,7 +23,7 @@ export const prepareDataPacketDetail: DetailPrepFunction = async ordinal => {
   const dataPacketDetail = ordinal.data;
 
   if (!dataPacketDetail.isValid()) {
-    throw new Error('UserSpecificDataPacketDetails is not valid.');
+    throw new Error('DataPacketRequestDetails is not valid.');
   }
 };
 

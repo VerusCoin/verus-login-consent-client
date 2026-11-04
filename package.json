@@ -39,8 +39,8 @@
     "react-router-dom": "6.30.2",
     "stream-browserify": "3.0.0",
     "util": "0.12.5",
-    "verus-typescript-primitives": "git+https://github.com/VerusCoin/verus-typescript-primitives.git#7f0fd7ff7a27aefd66c85fbc7dc14862779548da",
-    "verusid-ts-client": "git+https://github.com/VerusCoin/verusid-ts-client#6b14d0ce53bd57e4f3b5df4509fe2cd92d03fc5e",
+    "verus-typescript-primitives": "git+https://github.com/VerusCoin/verus-typescript-primitives.git#3ffa9d77a3dd98c23fe4f66cf4368946906de780",
+    "verusid-ts-client": "git+https://github.com/VerusCoin/verusid-ts-client#933e8f8da1a51b99ba7533701dddb9914b7a06b7",
     "vm-browserify": "1.1.2"
   },
   "devDependencies": {

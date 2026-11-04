@@ -1,7 +1,7 @@
 import { API_VERIFY_LOGIN_REQUEST, NATIVE, POST } from "../../utils/constants";
 import { getApiData } from "../callCreator";
 
-export const verifyLoginRequest = async (chainId, request) => {
+export const verifyLoginRequest = async (chainId, request, capability = null) => {
   try {
     const res = await getApiData(
       NATIVE,
@@ -9,6 +9,7 @@ export const verifyLoginRequest = async (chainId, request) => {
       {
         chainTicker: chainId,
         request: request,
+        capability,
       },
       POST,
       true

@@ -22,6 +22,7 @@ import {
   checkAndUpdateChainInfo,
 } from '#/redux/reducers/identity/identity.actions';
 import {
+  navigateGenericRequest,
   setCurrentDetailIndex,
   setExternalAction,
   setNavigationPath,
@@ -158,8 +159,13 @@ export class LoginConsent extends React.Component<LoginConsentProps, LoginConsen
             store.getState
           );
 
-          // CONSENT_TO_SCOPE acts as the review for the generic request.
-          this.props.dispatch(setNavigationPath(CONSENT_TO_SCOPE));
+          if (request.isSigned()) {
+            // CONSENT_TO_SCOPE acts as the review for the generic request.
+            this.props.dispatch(setNavigationPath(CONSENT_TO_SCOPE));
+          } else {
+            // Unsigned requests have no signer to review, so start at their first detail.
+            await (this.props.dispatch as AppDispatch)(navigateGenericRequest());
+          }
         } else {
           throw new Error('GenericRequest contains no details to process');
         }
@@ -226,9 +232,11 @@ export class LoginConsent extends React.Component<LoginConsentProps, LoginConsen
   // it. If any problems are found, an error is thrown.
   async checkRequest(req: DeeplinkData): Promise<void> {
     const chainId = this.props.chainId;
+    // Verifying with Desktop's ticket is what later lets this request provision an identity.
+    const {provisioningCapability} = store.getState().deeplink;
 
     if (req instanceof LoginConsentRequest) {
-      await checkLoginConsentRequest(chainId, req);
+      await checkLoginConsentRequest(chainId, req, provisioningCapability);
       const signingIdentity = await getIdentity(chainId, req.signing_id);
       await this.fetchAndStoreSignatureInfo(
         chainId,
@@ -238,7 +246,7 @@ export class LoginConsent extends React.Component<LoginConsentProps, LoginConsen
         req.challenge.created_at
       );
     } else if (req instanceof GenericRequest) {
-      await checkGenericRequest(chainId, req, store.getState);
+      await checkGenericRequest(chainId, req, store.getState, provisioningCapability);
       if (req.isSigned()) {
         const signingId = req.signature.identityID.toIAddress();
         const signatureString = req.signature.signatureAsVch.toString('base64');
