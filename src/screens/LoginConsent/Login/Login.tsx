@@ -60,6 +60,7 @@ const Login = (props: LoginProps) => {
     (state: RootState) => state.identity.activeIdentity
   ) as Identity;
   const deeplinkData = useSelector((state: RootState) => state.deeplink.data);
+  const provisionedId = useSelector((state: RootState) => state.provision.requestedId);
   const currentDetailIndex =
     useSelector((state: RootState) => state.navigation.currentDetailIndex) || 0;
 
@@ -84,7 +85,14 @@ const Login = (props: LoginProps) => {
 
   const isLastDetailInRequest =
     isGenericRequest && isLastDetail(deeplinkData as GenericRequest, currentDetailIndex);
-  const continueButtonText = isLastDetailInRequest ? 'Finish' : 'Continue';
+  // Only after provisioning: the new ID is selected and the next press signs the login with it.
+  const isSigningWithProvisionedId =
+    provisionedId !== '' && activeIdentity?.identity?.identityaddress === provisionedId;
+  const continueButtonText = isSigningWithProvisionedId
+    ? 'Finish and Sign'
+    : isLastDetailInRequest
+      ? 'Finish'
+      : 'Continue';
   const continueButtonColor = isLastDetailInRequest ? 'primary' : 'success';
 
   const cancel = (): void => {
